@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shopping Cart</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            500: '#3B82F6',
+                            600: '#2563EB',
+                        },
+                        success: '#10B981',
+                        error: '#EF4444',
+                    },
+                    transitionProperty: {
+                        'width': 'width',
+                        'opacity': 'opacity',
+                        'transform': 'transform',
+                    },
+                }
+            }
+        }
+    </script>
+</head>
+
+<body class="bg-gray-50 min-h-screen">
+    <!-- Header -->
+    <div class="bg-primary-500 py-4 px-6 shadow-md">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <h1 class="text-2xl font-bold text-white">Shopping Cart</h1>
+            <div class="flex space-x-4">
+                <a href="{{ url_for('product_catalogue') }}"
+                    class="text-white hover:text-primary-100 transition">Continue Shopping</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+        {% if cart_items %}
+        <!-- Cart Summary -->
+        <div class="bg-white rounded-xl shadow-md overflow-hidden mb-8">
+            <div class="bg-gray-50 px-6 py-4 border-b border-gray-200">
+                <h2 class="text-lg font-semibold text-gray-800">Your Cart ({{ cart_items|length }} items)</h2>
+            </div>
+            <div class="p-6">
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th scope="col"
+                                    class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Product</th>
+                                <th scope="col"
+                                    class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Category</th>
+                                <th scope="col"
+                                    class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Price</th>
+                                <th scope="col"
+                                    class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Quantity</th>
+                                <th scope="col"
+                                    class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Subtotal</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            {% for item in cart_items %}
+                            <tr>
+                                <td class="px-4 py-4">
+                                    <div class="flex items-center">
+                                        <div class="flex-shrink-0 h-16 w-16">
+                                            <img src="{{ url_for('static', filename=item.image_path) }}"
+                                                alt="{{ item.name }}" class="h-full w-full object-contain">
+                                        </div>
+                                        <div class="ml-4">
+                                            <div class="text-sm font-medium text-gray-900">{{ item.name }}</div>
+                                            <div class="text-sm text-gray-500 line-clamp-1">{{ item.description }}</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-4 py-4 text-sm text-gray-500">{{ item.category }}</td>
+                                <td class="px-4 py-4 text-sm text-gray-500">${{ "%.2f"|format(item.price) }}</td>
+                                <td class="px-4 py-4 text-sm text-gray-500">{{ item.quantity }}</td>
+                                <td class="px-4 py-4 text-sm font-medium text-gray-900">${{
+                                    "%.2f"|format(item.item_total) }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cart Summary and Checkout -->
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
+            <!-- Continue Shopping Button -->
+            <a href="{{ url_for('product_catalogue') }}"
+                class="px-6 py-2 border rounded-lg text-gray-700 hover:bg-gray-100 transition order-2 md:order-1">
+                ← Continue Shopping
+            </a>
+
+            <!-- Cart Totals and Checkout -->
+            <div class="bg-white rounded-xl shadow-md p-6 w-full md:w-auto order-1 md:order-2">
+                <div class="flex justify-between items-center mb-4">
+                    <span class="text-gray-700">Subtotal</span>
+                    <span class="font-medium">${{ "%.2f"|format(subtotal) }}</span>
+                </div>
+                <div class="flex justify-between items-center mb-4">
+                    <span class="text-gray-700">Shipping</span>
+                    <span class="font-medium">${{ "%.2f"|format(shipping) }}</span>
+                </div>
+                <div class="flex justify-between items-center mb-6 pt-4 border-t border-gray-200">
+                    <span class="text-lg font-semibold text-gray-900">Total</span>
+                    <span class="text-lg font-semibold text-gray-900">${{ "%.2f"|format(total) }}</span>
+                </div>
+
+                <a href="{{ url_for('confirm_order') }}"
+                    class="block w-full px-6 py-3 bg-primary-500 text-white rounded-lg hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition text-center">
+                    Proceed to Checkout
+                </a>
+            </div>
+        </div>
+        {% else %}
+        <!-- Empty Cart State -->
+        <div class="bg-white rounded-xl shadow-md p-12 text-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto text-gray-400 mb-4" fill="none"
+                viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+            </svg>
+            <h3 class="text-lg font-medium text-gray-900 mb-2">Your cart is empty</h3>
+            <p class="text-gray-500 mb-6">Looks like you haven't added any items to your cart yet.</p>
+            <a href="{{ url_for('product_catalogue') }}"
+                class="px-6 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition inline-block">
+                Continue Shopping
+            </a>
+        </div>
+        {% endif %}
+    </main>
+</body>
+
+</html>

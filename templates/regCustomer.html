@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Registration</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            500: '#3B82F6',
+                            600: '#2563EB',
+                        },
+                        success: '#10B981',
+                        error: '#EF4444',
+                    },
+                    transitionProperty: {
+                        'width': 'width',
+                    },
+                }
+            }
+        }
+    </script>
+</head>
+
+<body class="bg-gray-50 min-h-screen flex items-center justify-center p-4">
+    <div class="w-full max-w-2xl bg-white rounded-xl shadow-lg overflow-hidden">
+        <div class="bg-primary-500 py-4 px-6">
+            <h1 class="text-2xl font-bold text-white">Customer Registration</h1>
+            <p class="text-primary-100">Please fill in the form to register</p>
+        </div>
+
+        <form id="registrationForm" method="POST" action="{{ url_for('register_customer') }}" class="p-6 space-y-6"
+            novalidate>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- First Name -->
+                <div>
+                    <label for="first_name" class="block text-sm font-medium text-gray-700 mb-1">First Name *</label>
+                    <input type="text" id="first_name" name="first_name" required
+                        class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition"
+                        placeholder="John">
+                    <p id="first_name_error" class="mt-1 text-sm text-error hidden">First name is required</p>
+                </div>
+
+                <!-- Last Name -->
+                <div>
+                    <label for="last_name" class="block text-sm font-medium text-gray-700 mb-1">Last Name *</label>
+                    <input type="text" id="last_name" name="last_name" required
+                        class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition"
+                        placeholder="Doe">
+                    <p id="last_name_error" class="mt-1 text-sm text-error hidden">Last name is required</p>
+                </div>
+
+                <!-- Email -->
+                <div class="md:col-span-2">
+                    <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email *</label>
+                    <input type="email" id="email" name="email" required
+                        class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition"
+                        placeholder="john.doe@example.com">
+                    <p id="email_error" class="mt-1 text-sm text-error hidden">Please enter a valid email address</p>
+                </div>
+
+                <!-- Phone -->
+                <div class="md:col-span-2">
+                    <label for="phone" class="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
+                    <input type="tel" id="phone" name="phone"
+                        class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition"
+                        placeholder="+1 (555) 123-4567">
+                </div>
+
+                <!-- Address -->
+                <div class="md:col-span-2">
+                    <label for="address" class="block text-sm font-medium text-gray-700 mb-1">Address</label>
+                    <textarea id="address" name="address" rows="2"
+                        class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition"
+                        placeholder="123 Main St"></textarea>
+                </div>
+
+                <!-- City -->
+                <div>
+                    <label for="city" class="block text-sm font-medium text-gray-700 mb-1">City</label>
+                    <input type="text" id="city" name="city"
+                        class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition"
+                        placeholder="New York">
+                </div>
+
+                <!-- State -->
+                <div>
+                    <label for="state" class="block text-sm font-medium text-gray-700 mb-1">State/Province</label>
+                    <input type="text" id="state" name="state"
+                        class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition"
+                        placeholder="NY">
+                </div>
+
+                <!-- Country -->
+                <div>
+                    <label for="country" class="block text-sm font-medium text-gray-700 mb-1">Country</label>
+                    <input type="text" id="country" name="country"
+                        class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition"
+                        placeholder="United States">
+                </div>
+
+                <!-- Customer Tier -->
+                <div>
+                    <label for="customer_tier" class="block text-sm font-medium text-gray-700 mb-1">Customer
+                        Tier</label>
+                    <select id="customer_tier" name="customer_tier"
+                        class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition bg-white">
+                        <option value="regular">Regular</option>
+                        <option value="premium">Premium</option>
+                        <option value="vip">VIP</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="flex items-center justify-end space-x-4 pt-4">
+                <button type="reset" class="px-6 py-2 border rounded-lg text-gray-700 hover:bg-gray-100 transition">
+                    Reset
+                </button>
+                <button type="submit" id="submitBtn"
+                    class="px-6 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition flex items-center">
+                    <span>Register</span>
+                    <svg id="spinner" class="hidden w-4 h-4 ml-2 animate-spin" xmlns="http://www.w3.org/2000/svg"
+                        fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4">
+                        </circle>
+                        <path class="opacity-75" fill="currentColor"
+                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                        </path>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Error Message Display -->
+            {% if error %}
+            <div id="formMessage" class="p-4 rounded-lg bg-error-100 text-error-700">
+                {{ error }}
+            </div>
+            {% endif %}
+        </form>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const form = document.getElementById('registrationForm');
+            const submitBtn = document.getElementById('submitBtn');
+            const spinner = document.getElementById('spinner');
+
+            // Validate email format
+            function isValidEmail(email) {
+                return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+            }
+
+            // Form validation
+            function validateForm() {
+                let isValid = true;
+
+                // Validate first name
+                const firstName = document.getElementById('first_name').value.trim();
+                if (!firstName) {
+                    document.getElementById('first_name_error').classList.remove('hidden');
+                    isValid = false;
+                } else {
+                    document.getElementById('first_name_error').classList.add('hidden');
+                }
+
+                // Validate last name
+                const lastName = document.getElementById('last_name').value.trim();
+                if (!lastName) {
+                    document.getElementById('last_name_error').classList.remove('hidden');
+                    isValid = false;
+                } else {
+                    document.getElementById('last_name_error').classList.add('hidden');
+                }
+
+                // Validate email
+                const email = document.getElementById('email').value.trim();
+                if (!email) {
+                    document.getElementById('email_error').textContent = 'Email is required';
+                    document.getElementById('email_error').classList.remove('hidden');
+                    isValid = false;
+                } else if (!isValidEmail(email)) {
+                    document.getElementById('email_error').textContent = 'Please enter a valid email address';
+                    document.getElementById('email_error').classList.remove('hidden');
+                    isValid = false;
+                } else {
+                    document.getElementById('email_error').classList.add('hidden');
+                }
+
+                return isValid;
+            }
+
+            // Form submission
+            form.addEventListener('submit', function (e) {
+                if (!validateForm()) {
+                    e.preventDefault();
+                    return;
+                }
+
+                // Show loading state
+                submitBtn.disabled = true;
+                spinner.classList.remove('hidden');
+                submitBtn.querySelector('span').textContent = 'Processing...';
+            });
+
+            // Real-time validation
+            document.getElementById('first_name').addEventListener('input', function () {
+                if (this.value.trim()) document.getElementById('first_name_error').classList.add('hidden');
+            });
+
+            document.getElementById('last_name').addEventListener('input', function () {
+                if (this.value.trim()) document.getElementById('last_name_error').classList.add('hidden');
+            });
+
+            document.getElementById('email').addEventListener('input', function () {
+                if (this.value.trim() && isValidEmail(this.value.trim())) {
+                    document.getElementById('email_error').classList.add('hidden');
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>

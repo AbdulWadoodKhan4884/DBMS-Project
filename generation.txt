@@ -1,0 +1,2489 @@
+Create a complete Flask website based on the provided materials, ensuring a functional and well-structured application. I will later provide the folder structure, hardcoded Tailwind CSS + HTML templates, and assets in the `static/images` folder. Your task is to:
+
+1. **Rewrite Templates**: Refactor all provided templates to integrate with Flask, using Jinja2 for dynamic rendering. Preserve hardcoded UI elements (e.g., Tailwind styles) that are not driven by dynamic data from the database or forms. Output each rewritten template as a separate file.
+2. **Develop `app.py`**: Write a complete `app.py` file for the Flask application, including all necessary imports, routes, database interactions, and form handling. Ensure the application is fully functional and adheres to the specified website flow.
+3. **Provide `requirements.txt`**: Generate a `requirements.txt` file listing all Python dependencies required to run the application.
+4. **Include Additional Utilities**: If needed, provide any supplementary files (e.g., JavaScript for client-side functionality) in separate files, clearly documented.
+5. **Database Interactions**: Write detailed and optimized SQL queries based on the database schema provided below. Ensure all database operations (e.g., insertions, retrievals) are secure and efficient.
+6. **No Session Handling**: As this is not a full-fledged website, avoid implementing session management. Use a hardcoded `customer_id` (e.g., `1`) for database operations and page navigation, assuming it represents the registered customer.
+
+**Website Flow**:
+- **Root Route (`/`)**: Renders `regCustomer.html`, a form to collect customer data. On form submission, process the input in a Python function, extrapolate additional data as needed, and insert it into the database. After successful registration, redirect to `/prodCatalogue`.
+- **Product Catalogue Route (`/prodCatalogue`)**: Renders `prodCatalogue.html`, fetching products dynamically from the database using Jinja2 loops for rendering. Hardcoded UI elements (e.g., layout, styles) should remain unchanged. Include an "Add to Cart" feature to store selected products in the database for the hardcoded `customer_id`. Add a "Go to Cart" button linking to `/cartPage`.
+- **Cart Route (`/cartPage`)**: Renders `cartPage.html`, displaying the user's cart contents pulled dynamically from the database. Ensure proper rendering with Jinja2. Include a "Proceed to Checkout" button linking to `/confirmOrder`.
+- **Confirm Order Route (`/confirmOrder`)**: Renders `confirmOrder.html`, allowing the user to review and confirm their order. Handle form submission, execute necessary SQL queries to update the database, and redirect to `/checkoutPage` upon confirmation.
+- **Checkout Route (`/checkoutPage`)**: Renders `checkoutPage.html`, displaying order details (e.g., products, quantities, total calculations) dynamically from the database. After displaying the checkout summary, provide a button to redirect back to `/prodCatalogue` for another order cycle.
+
+**Key Requirements**:
+- Ensure all database interactions are dynamic, secure, and based on the provided schema.
+- Use Jinja2 templating for dynamic content while preserving hardcoded UI elements.
+- Hardcode `customer_id=1` for all database operations and page flows, as no session handling is required.
+- Optimize the application for clarity, maintainability, and functionality, making necessary adjustments to improve the flow or structure while ensuring the project is fully operational.
+- Provide clear documentation for any changes or assumptions made.
+
+**Provided Materials** (to be submitted later):
+- Folder structure
+- Hardcoded Tailwind CSS + HTML templates
+- Assets in `static/images`
+- Database schema
+
+Deliver a complete, working Flask project with rewritten templates, `app.py`, `requirements.txt`, and any additional utilities, ensuring seamless interaction with the database and adherence to the specified flow.
+
+
+My Folder View:
+│   app.py
+│
+├───assets
+├───SQL
+│       BogusData.sql
+│       Database.sql
+│
+├───static
+│   └───images
+│           add_to_cartsvg.svg
+│           almond_butter.png
+│           bluetooth_speaker.png
+│           ceramic_mixing_bow.png
+│           checksvg.svg
+│           chefs_knife.png
+│           claw_hammer.png
+│           electronicssvg.svg
+│           food_market_purchasingsvg.svg
+│           honey_jar.png
+│           knives_kitchenwaresvg.svg
+│           moneysvg.svg
+│           organic_quinoa.png
+│           payment_method_paysvg.svg
+│           screw_set.png
+│           shopping_cart_21svg.svg
+│           shopping_cart_outlinesvg.svg
+│           silicone_spatula.png
+│           smartphone_y.png
+│           smart_bulb.png
+│           tape_measure.png
+│           toolssvg.svg
+│
+└───templates
+        adminPage.html
+        cartPage.html
+        checkoutPage.html
+        confirmOrder.html
+        prodCatalogue.html
+        regCustomer.html
+
+My Templates:
+        adminPage.html
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            500: '#3B82F6',
+                            600: '#2563EB',
+                        },
+                        success: '#10B981',
+                        warning: '#F59E0B',
+                        error: '#EF4444',
+                        info: '#06B6D4',
+                    },
+                    transitionProperty: {
+                        'width': 'width',
+                        'opacity': 'opacity',
+                        'transform': 'transform',
+                    },
+                }
+            }
+        }
+    </script>
+</head>
+
+<body class="bg-gray-50 min-h-screen">
+    <!-- Header -->
+    <div class="bg-primary-500 py-4 px-6 shadow-md">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <h1 class="text-2xl font-bold text-white">Admin Dashboard</h1>
+            <div class="flex space-x-4">
+                <button class="text-white hover:text-primary-100 transition">Refresh Data</button>
+                <button class="text-white hover:text-primary-100 transition">Export Data</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 space-y-8">
+        <!-- Metrics Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <!-- Total Sales -->
+            <div class="bg-white rounded-xl shadow-md p-6 border-l-4 border-primary-500">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-sm font-medium text-gray-500">Total Sales</p>
+                        <p class="text-2xl font-bold text-gray-900">$1,248.75</p>
+                    </div>
+                    <div class="p-2 rounded-lg bg-primary-100 text-primary-500">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                </div>
+                <p class="mt-2 text-sm text-gray-500"><span class="text-success">↑ 12.5%</span> from last month</p>
+            </div>
+
+            <!-- Items Sold -->
+            <div class="bg-white rounded-xl shadow-md p-6 border-l-4 border-success">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-sm font-medium text-gray-500">Items Sold</p>
+                        <p class="text-2xl font-bold text-gray-900">248</p>
+                    </div>
+                    <div class="p-2 rounded-lg bg-success-100 text-success">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                </div>
+                <p class="mt-2 text-sm text-gray-500"><span class="text-success">↑ 8.2%</span> from last month</p>
+            </div>
+
+            <!-- Items in Carts -->
+            <div class="bg-white rounded-xl shadow-md p-6 border-l-4 border-warning">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-sm font-medium text-gray-500">Items in Carts</p>
+                        <p class="text-2xl font-bold text-gray-900">42</p>
+                    </div>
+                    <div class="p-2 rounded-lg bg-warning-100 text-warning">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                        </svg>
+                    </div>
+                </div>
+                <p class="mt-2 text-sm text-gray-500"><span class="text-success">↑ 5.3%</span> from last week</p>
+            </div>
+
+            <!-- Delivered Orders -->
+            <div class="bg-white rounded-xl shadow-md p-6 border-l-4 border-info">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-sm font-medium text-gray-500">Delivered Orders</p>
+                        <p class="text-2xl font-bold text-gray-900">87</p>
+                    </div>
+                    <div class="p-2 rounded-lg bg-info-100 text-info">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0" />
+                        </svg>
+                    </div>
+                </div>
+                <p class="mt-2 text-sm text-gray-500"><span class="text-error">↓ 2.1%</span> from last month</p>
+            </div>
+        </div>
+
+        <!-- Charts Section -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Sales by Category -->
+            <div class="bg-white rounded-xl shadow-md p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-lg font-semibold text-gray-800">Sales by Category</h2>
+                    <select
+                        class="text-sm border rounded-lg px-3 py-1 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition">
+                        <option>Last 7 Days</option>
+                        <option>Last 30 Days</option>
+                        <option selected>Last 90 Days</option>
+                    </select>
+                </div>
+                <div class="h-64">
+                    <canvas id="salesChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Delivery Status -->
+            <div class="bg-white rounded-xl shadow-md p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-lg font-semibold text-gray-800">Delivery Status</h2>
+                    <select
+                        class="text-sm border rounded-lg px-3 py-1 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition">
+                        <option selected>All Time</option>
+                        <option>Last 30 Days</option>
+                        <option>Last 7 Days</option>
+                    </select>
+                </div>
+                <div class="h-64">
+                    <canvas id="deliveryChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Items Sold Table -->
+        <div class="bg-white rounded-xl shadow-md overflow-hidden">
+            <div class="bg-gray-50 px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+                <h2 class="text-lg font-semibold text-gray-800">Items Sold</h2>
+                <div class="flex space-x-2">
+                    <select id="categoryFilter"
+                        class="text-sm border rounded-lg px-3 py-1 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition">
+                        <option value="all">All Categories</option>
+                        <option value="Vinyl">Vinyl</option>
+                        <option value="Matte">Matte</option>
+                        <option value="Glossy">Glossy</option>
+                        <option value="Holographic">Holographic</option>
+                    </select>
+                    <select id="sortSold"
+                        class="text-sm border rounded-lg px-3 py-1 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition">
+                        <option value="quantity-desc">Sort by: Most Sold</option>
+                        <option value="quantity-asc">Sort by: Least Sold</option>
+                        <option value="revenue-desc">Sort by: Highest Revenue</option>
+                        <option value="revenue-asc">Sort by: Lowest Revenue</option>
+                    </select>
+                </div>
+            </div>
+            <div class="p-6">
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th scope="col"
+                                    class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Product</th>
+                                <th scope="col"
+                                    class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Category</th>
+                                <th scope="col"
+                                    class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Quantity Sold</th>
+                                <th scope="col"
+                                    class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Total Revenue</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            <tr>
+                                <td class="px-4 py-4">
+                                    <div class="flex items-center">
+                                        <div class="flex-shrink-0 h-10 w-10">
+                                            <img src="defaultProd.png" alt="Product"
+                                                class="h-full w-full object-contain">
+                                        </div>
+                                        <div class="ml-4">
+                                            <div class="text-sm font-medium text-gray-900">Vinyl Sticker Pack</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-4 py-4 text-sm text-gray-500">Vinyl</td>
+                                <td class="px-4 py-4 text-sm text-gray-500">84</td>
+                                <td class="px-4 py-4 text-sm font-medium text-gray-900">$1,091.16</td>
+                            </tr>
+                            <tr>
+                                <td class="px-4 py-4">
+                                    <div class="flex items-center">
+                                        <div class="flex-shrink-0 h-10 w-10">
+                                            <img src="defaultProd.png" alt="Product"
+                                                class="h-full w-full object-contain">
+                                        </div>
+                                        <div class="ml-4">
+                                            <div class="text-sm font-medium text-gray-900">Holographic Sticker</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-4 py-4 text-sm text-gray-500">Holographic</td>
+                                <td class="px-4 py-4 text-sm text-gray-500">72</td>
+                                <td class="px-4 py-4 text-sm font-medium text-gray-900">$1,079.28</td>
+                            </tr>
+                            <tr>
+                                <td class="px-4 py-4">
+                                    <div class="flex items-center">
+                                        <div class="flex-shrink-0 h-10 w-10">
+                                            <img src="defaultProd.png" alt="Product"
+                                                class="h-full w-full object-contain">
+                                        </div>
+                                        <div class="ml-4">
+                                            <div class="text-sm font-medium text-gray-900">Matte Finish Sticker</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-4 py-4 text-sm text-gray-500">Matte</td>
+                                <td class="px-4 py-4 text-sm text-gray-500">56</td>
+                                <td class="px-4 py-4 text-sm font-medium text-gray-900">$503.44</td>
+                            </tr>
+                            <tr>
+                                <td class="px-4 py-4">
+                                    <div class="flex items-center">
+                                        <div class="flex-shrink-0 h-10 w-10">
+                                            <img src="defaultProd.png" alt="Product"
+                                                class="h-full w-full object-contain">
+                                        </div>
+                                        <div class="ml-4">
+                                            <div class="text-sm font-medium text-gray-900">Glossy Premium Sticker</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-4 py-4 text-sm text-gray-500">Glossy</td>
+                                <td class="px-4 py-4 text-sm text-gray-500">36</td>
+                                <td class="px-4 py-4 text-sm font-medium text-gray-900">$395.64</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="flex justify-between items-center mt-4">
+                    <div class="text-sm text-gray-500">Showing <span class="font-medium">1</span> to <span
+                            class="font-medium">4</span> of <span class="font-medium">4</span> results</div>
+                    <div class="flex space-x-2">
+                        <button
+                            class="px-3 py-1 border rounded-lg text-gray-700 hover:bg-gray-100 transition disabled:opacity-50"
+                            disabled>
+                            Previous
+                        </button>
+                        <button class="px-3 py-1 border rounded-lg text-gray-700 hover:bg-gray-100 transition">
+                            Next
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Delivered Orders Table -->
+        <div class="bg-white rounded-xl shadow-md overflow-hidden mt-8">
+            <div class="bg-gray-50 px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+                <h2 class="text-lg font-semibold text-gray-800">Delivered Orders</h2>
+                <div class="flex space-x-2">
+                    <select id="statusFilter"
+                        class="text-sm border rounded-lg px-3 py-1 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition">
+                        <option value="all">All Statuses</option>
+                        <option value="Delivered">Delivered</option>
+                        <option value="In Transit">In Transit</option>
+                        <option value="Processing">Processing</option>
+                    </select>
+                    <input type="text" placeholder="Search orders..."
+                        class="text-sm border rounded-lg px-3 py-1 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition w-48">
+                </div>
+            </div>
+            <div class="p-6">
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th scope="col"
+                                    class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Order ID</th>
+                                <th scope="col"
+                                    class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Product</th>
+                                <th scope="col"
+                                    class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Quantity</th>
+                                <th scope="col"
+                                    class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Shipping Address</th>
+                                <th scope="col"
+                                    class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Status</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            <tr>
+                                <td class="px-4 py-4 text-sm font-medium text-gray-900">#ORD-1289</td>
+                                <td class="px-4 py-4 text-sm text-gray-500">Vinyl Sticker Pack</td>
+                                <td class="px-4 py-4 text-sm text-gray-500">2</td>
+                                <td class="px-4 py-4 text-sm text-gray-500">123 Main St, New York, US</td>
+                                <td class="px-4 py-4">
+                                    <span
+                                        class="px-2 py-1 text-xs rounded-full bg-success-100 text-success">Delivered</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="px-4 py-4 text-sm font-medium text-gray-900">#ORD-1287</td>
+                                <td class="px-4 py-4 text-sm text-gray-500">Holographic Sticker</td>
+                                <td class="px-4 py-4 text-sm text-gray-500">1</td>
+                                <td class="px-4 py-4 text-sm text-gray-500">456 Oak Ave, Boston, US</td>
+                                <td class="px-4 py-4">
+                                    <span
+                                        class="px-2 py-1 text-xs rounded-full bg-success-100 text-success">Delivered</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="px-4 py-4 text-sm font-medium text-gray-900">#ORD-1285</td>
+                                <td class="px-4 py-4 text-sm text-gray-500">Matte Finish Sticker</td>
+                                <td class="px-4 py-4 text-sm text-gray-500">3</td>
+                                <td class="px-4 py-4 text-sm text-gray-500">789 Pine Rd, Chicago, US</td>
+                                <td class="px-4 py-4">
+                                    <span class="px-2 py-1 text-xs rounded-full bg-warning-100 text-warning">In
+                                        Transit</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="flex justify-between items-center mt-4">
+                    <div class="text-sm text-gray-500">Showing <span class="font-medium">1</span> to <span
+                            class="font-medium">3</span> of <span class="font-medium">3</span> results</div>
+                    <div class="flex space-x-2">
+                        <button
+                            class="px-3 py-1 border rounded-lg text-gray-700 hover:bg-gray-100 transition disabled:opacity-50"
+                            disabled>
+                            Previous
+                        </button>
+                        <button class="px-3 py-1 border rounded-lg text-gray-700 hover:bg-gray-100 transition">
+                            Next
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Items in Carts Table -->
+        <div class="bg-white rounded-xl shadow-md overflow-hidden mt-8">
+            <div class="bg-gray-50 px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+                <h2 class="text-lg font-semibold text-gray-800">Items in Carts</h2>
+                <div class="flex space-x-2">
+                    <select id="cartCategoryFilter"
+                        class="text-sm border rounded-lg px-3 py-1 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition">
+                        <option value="all">All Categories</option>
+                        <option value="Vinyl">Vinyl</option>
+                        <option value="Matte">Matte</option>
+                        <option value="Glossy">Glossy</option>
+                        <option value="Holographic">Holographic</option>
+                    </select>
+                    <input type="text" placeholder="Search products..."
+                        class="text-sm border rounded-lg px-3 py-1 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition w-48">
+                </div>
+            </div>
+            <div class="p-6">
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th scope="col"
+                                    class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Product</th>
+                                <th scope="col"
+                                    class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Category</th>
+                                <th scope="col"
+                                    class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Quantity</th>
+                                <th scope="col"
+                                    class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Cart Owner</th>
+                                <th scope="col"
+                                    class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Added On</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            <tr>
+                                <td class="px-4 py-4">
+                                    <div class="flex items-center">
+                                        <div class="flex-shrink-0 h-10 w-10">
+                                            <img src="defaultProd.png" alt="Product"
+                                                class="h-full w-full object-contain">
+                                        </div>
+                                        <div class="ml-4">
+                                            <div class="text-sm font-medium text-gray-900">Glossy Premium Sticker</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-4 py-4 text-sm text-gray-500">Glossy</td>
+                                <td class="px-4 py-4 text-sm text-gray-500">2</td>
+                                <td class="px-4 py-4 text-sm text-gray-500">user1@example.com</td>
+                                <td class="px-4 py-4 text-sm text-gray-500">2023-06-15</td>
+                            </tr>
+                            <tr>
+                                <td class="px-4 py-4">
+                                    <div class="flex items-center">
+                                        <div class="flex-shrink-0 h-10 w-10">
+                                            <img src="defaultProd.png" alt="Product"
+                                                class="h-full w-full object-contain">
+                                        </div>
+                                        <div class="ml-4">
+                                            <div class="text-sm font-medium text-gray-900">Vinyl Sticker Pack</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-4 py-4 text-sm text-gray-500">Vinyl</td>
+                                <td class="px-4 py-4 text-sm text-gray-500">1</td>
+                                <td class="px-4 py-4 text-sm text-gray-500">user2@example.com</td>
+                                <td class="px-4 py-4 text-sm text-gray-500">2023-06-14</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="flex justify-between items-center mt-4">
+                    <div class="text-sm text-gray-500">Showing <span class="font-medium">1</span> to <span
+                            class="font-medium">2</span> of <span class="font-medium">2</span> results</div>
+                    <div class="flex space-x-2">
+                        <button
+                            class="px-3 py-1 border rounded-lg text-gray-700 hover:bg-gray-100 transition disabled:opacity-50"
+                            disabled>
+                            Previous
+                        </button>
+                        <button class="px-3 py-1 border rounded-lg text-gray-700 hover:bg-gray-100 transition">
+                            Next
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Sales by Category Chart
+            const salesCtx = document.getElementById('salesChart').getContext('2d');
+            const salesChart = new Chart(salesCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Vinyl', 'Holographic', 'Matte', 'Glossy'],
+                    datasets: [{
+                        label: 'Sales Revenue',
+                        data: [1091.16, 1079.28, 503.44, 395.64],
+                        backgroundColor: [
+                            'rgba(59, 130, 246, 0.7)',
+                            'rgba(16, 185, 129, 0.7)',
+                            'rgba(245, 158, 11, 0.7)',
+                            'rgba(6, 182, 212, 0.7)'
+                        ],
+                        borderColor: [
+                            'rgba(59, 130, 246, 1)',
+                            'rgba(16, 185, 129, 1)',
+                            'rgba(245, 158, 11, 1)',
+                            'rgba(6, 182, 212, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+
+            // Delivery Status Chart
+            const deliveryCtx = document.getElementById('deliveryChart').getContext('2d');
+            const deliveryChart = new Chart(deliveryCtx, {
+                type: 'pie',
+                data: {
+                    labels: ['Delivered', 'In Transit', 'Processing'],
+                    datasets: [{
+                        data: [65, 15, 20],
+                        backgroundColor: [
+                            'rgba(16, 185, 129, 0.7)',
+                            'rgba(245, 158, 11, 0.7)',
+                            'rgba(239, 68, 68, 0.7)'
+                        ],
+                        borderColor: [
+                            'rgba(16, 185, 129, 1)',
+                            'rgba(245, 158, 11, 1)',
+                            'rgba(239, 68, 68, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                        }
+                    }
+                }
+            });
+
+            // In a real implementation, you would add event listeners for:
+            // - Filtering tables by category/status
+            // - Sorting tables by columns
+            // - Pagination controls
+            // - Search functionality
+            // - Refresh data button
+            // - Export data button
+        });
+    </script>
+</body>
+
+</html>
+
+        cartPage.html
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shopping Cart</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            500: '#3B82F6',
+                            600: '#2563EB',
+                        },
+                        success: '#10B981',
+                        error: '#EF4444',
+                    },
+                    transitionProperty: {
+                        'width': 'width',
+                        'opacity': 'opacity',
+                        'transform': 'transform',
+                    },
+                }
+            }
+        }
+    </script>
+</head>
+
+<body class="bg-gray-50 min-h-screen">
+    <!-- Header -->
+    <div class="bg-primary-500 py-4 px-6 shadow-md">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <h1 class="text-2xl font-bold text-white">Shopping Cart</h1>
+            <div class="flex space-x-4">
+                <a href="prodCatalogue.html" class="text-white hover:text-primary-100 transition">Continue Shopping</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+        <!-- Cart Summary -->
+        <div class="bg-white rounded-xl shadow-md overflow-hidden mb-8">
+            <div class="bg-gray-50 px-6 py-4 border-b border-gray-200">
+                <h2 class="text-lg font-semibold text-gray-800">Your Cart (3 items)</h2>
+            </div>
+            <div class="p-6">
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th scope="col"
+                                    class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Product</th>
+                                <th scope="col"
+                                    class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Category</th>
+                                <th scope="col"
+                                    class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Price</th>
+                                <th scope="col"
+                                    class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Quantity</th>
+                                <th scope="col"
+                                    class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Subtotal</th>
+                                <th scope="col"
+                                    class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200" id="cartItems">
+                            <!-- Cart Item 1 -->
+                            <tr class="cart-item" data-id="1">
+                                <td class="px-4 py-4">
+                                    <div class="flex items-center">
+                                        <div class="flex-shrink-0 h-16 w-16">
+                                            <img src="defaultProd.png" alt="Product"
+                                                class="h-full w-full object-contain">
+                                        </div>
+                                        <div class="ml-4">
+                                            <div class="text-sm font-medium text-gray-900">Vinyl Sticker Pack</div>
+                                            <div class="text-sm text-gray-500 line-clamp-1">Durable vinyl stickers
+                                                perfect for outdoor use</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-4 py-4 text-sm text-gray-500">Vinyl</td>
+                                <td class="px-4 py-4 text-sm text-gray-500">
+                                    <span class="item-price">12.99</span>
+                                </td>
+                                <td class="px-4 py-4">
+                                    <input type="number" min="1" value="2"
+                                        class="quantity-input w-20 px-3 py-1 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition">
+                                    <p class="quantity-error mt-1 text-xs text-error hidden"></p>
+                                </td>
+                                <td class="px-4 py-4 text-sm font-medium text-gray-900">
+                                    $<span class="item-subtotal">25.98</span>
+                                </td>
+                                <td class="px-4 py-4 text-sm text-gray-500">
+                                    <button class="remove-item text-error hover:text-error-600 transition">
+                                        Remove
+                                    </button>
+                                </td>
+                            </tr>
+
+                            <!-- Cart Item 2 -->
+                            <tr class="cart-item" data-id="2">
+                                <td class="px-4 py-4">
+                                    <div class="flex items-center">
+                                        <div class="flex-shrink-0 h-16 w-16">
+                                            <img src="defaultProd.png" alt="Product"
+                                                class="h-full w-full object-contain">
+                                        </div>
+                                        <div class="ml-4">
+                                            <div class="text-sm font-medium text-gray-900">Holographic Sticker</div>
+                                            <div class="text-sm text-gray-500 line-clamp-1">Eye-catching holographic
+                                                effect stickers</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-4 py-4 text-sm text-gray-500">Holographic</td>
+                                <td class="px-4 py-4 text-sm text-gray-500">
+                                    <span class="item-price">14.99</span>
+                                </td>
+                                <td class="px-4 py-4">
+                                    <input type="number" min="1" value="1"
+                                        class="quantity-input w-20 px-3 py-1 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition">
+                                    <p class="quantity-error mt-1 text-xs text-error hidden"></p>
+                                </td>
+                                <td class="px-4 py-4 text-sm font-medium text-gray-900">
+                                    $<span class="item-subtotal">14.99</span>
+                                </td>
+                                <td class="px-4 py-4 text-sm text-gray-500">
+                                    <button class="remove-item text-error hover:text-error-600 transition">
+                                        Remove
+                                    </button>
+                                </td>
+                            </tr>
+
+                            <!-- Cart Item 3 -->
+                            <tr class="cart-item" data-id="3">
+                                <td class="px-4 py-4">
+                                    <div class="flex items-center">
+                                        <div class="flex-shrink-0 h-16 w-16">
+                                            <img src="defaultProd.png" alt="Product"
+                                                class="h-full w-full object-contain">
+                                        </div>
+                                        <div class="ml-4">
+                                            <div class="text-sm font-medium text-gray-900">Matte Finish Sticker</div>
+                                            <div class="text-sm text-gray-500 line-clamp-1">Elegant matte finish
+                                                stickers with a smooth texture</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-4 py-4 text-sm text-gray-500">Matte</td>
+                                <td class="px-4 py-4 text-sm text-gray-500">
+                                    <span class="item-price">8.99</span>
+                                </td>
+                                <td class="px-4 py-4">
+                                    <input type="number" min="1" value="3"
+                                        class="quantity-input w-20 px-3 py-1 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition">
+                                    <p class="quantity-error mt-1 text-xs text-error hidden"></p>
+                                </td>
+                                <td class="px-4 py-4 text-sm font-medium text-gray-900">
+                                    $<span class="item-subtotal">26.97</span>
+                                </td>
+                                <td class="px-4 py-4 text-sm text-gray-500">
+                                    <button class="remove-item text-error hover:text-error-600 transition">
+                                        Remove
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cart Summary and Checkout -->
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
+            <!-- Continue Shopping Button -->
+            <a href="prodCatalogue.html"
+                class="px-6 py-2 border rounded-lg text-gray-700 hover:bg-gray-100 transition order-2 md:order-1">
+                ← Continue Shopping
+            </a>
+
+            <!-- Cart Totals and Checkout -->
+            <div class="bg-white rounded-xl shadow-md p-6 w-full md:w-auto order-1 md:order-2">
+                <div class="flex justify-between items-center mb-4">
+                    <span class="text-gray-700">Subtotal</span>
+                    <span class="font-medium" id="cart-subtotal">$67.94</span>
+                </div>
+                <div class="flex justify-between items-center mb-4">
+                    <span class="text-gray-700">Shipping</span>
+                    <span class="font-medium">$5.99</span>
+                </div>
+                <div class="flex justify-between items-center mb-6 pt-4 border-t border-gray-200">
+                    <span class="text-lg font-semibold text-gray-900">Total</span>
+                    <span class="text-lg font-semibold text-gray-900" id="cart-total">$73.93</span>
+                </div>
+
+                <button id="checkoutBtn"
+                    class="w-full px-6 py-3 bg-primary-500 text-white rounded-lg hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition flex justify-center items-center">
+                    <span>Proceed to Checkout</span>
+                    <svg id="checkoutSpinner" class="hidden w-5 h-5 ml-2 animate-spin"
+                        xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4">
+                        </circle>
+                        <path class="opacity-75" fill="currentColor"
+                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                        </path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Empty Cart State (Hidden by default) -->
+        <div id="emptyCart" class="hidden bg-white rounded-xl shadow-md p-12 text-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto text-gray-400 mb-4" fill="none"
+                viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+            </svg>
+            <h3 class="text-lg font-medium text-gray-900 mb-2">Your cart is empty</h3>
+            <p class="text-gray-500 mb-6">Looks like you haven't added any items to your cart yet.</p>
+            <a href="prodCatalogue.html"
+                class="px-6 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition inline-block">
+                Continue Shopping
+            </a>
+        </div>
+    </main>
+
+    <!-- Message Toast -->
+    <div id="toast"
+        class="fixed bottom-4 right-4 bg-primary-500 text-white px-6 py-3 rounded-lg shadow-lg transform translate-y-10 opacity-0 transition-all duration-300">
+        <div class="flex items-center">
+            <span id="toastMessage"></span>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const cartItems = document.getElementById('cartItems');
+            const checkoutBtn = document.getElementById('checkoutBtn');
+            const checkoutSpinner = document.getElementById('checkoutSpinner');
+            const emptyCart = document.getElementById('emptyCart');
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toastMessage');
+
+            // Calculate and update cart totals
+            function updateCartTotals() {
+                let subtotal = 0;
+                const items = document.querySelectorAll('.cart-item');
+
+                items.forEach(item => {
+                    const price = parseFloat(item.querySelector('.item-price').textContent);
+                    const quantity = parseInt(item.querySelector('.quantity-input').value);
+                    const subtotalElement = item.querySelector('.item-subtotal');
+
+                    const itemSubtotal = price * quantity;
+                    subtotalElement.textContent = itemSubtotal.toFixed(2);
+                    subtotal += itemSubtotal;
+                });
+
+                document.getElementById('cart-subtotal').textContent = `$${subtotal.toFixed(2)}`;
+                document.getElementById('cart-total').textContent = `$${(subtotal + 5.99).toFixed(2)}`;
+
+                // Update cart count in header
+                const itemCount = items.length;
+                document.querySelector('h2').textContent = `Your Cart (${itemCount} ${itemCount === 1 ? 'item' : 'items'})`;
+
+                // Show empty cart message if no items
+                if (itemCount === 0) {
+                    document.querySelector('.bg-white.rounded-xl.shadow-md').classList.add('hidden');
+                    emptyCart.classList.remove('hidden');
+                } else {
+                    document.querySelector('.bg-white.rounded-xl.shadow-md').classList.remove('hidden');
+                    emptyCart.classList.add('hidden');
+                }
+            }
+
+            // Show toast message
+            function showToast(message) {
+                toastMessage.textContent = message;
+                toast.classList.remove('translate-y-10', 'opacity-0');
+                toast.classList.add('translate-y-0', 'opacity-100');
+
+                setTimeout(() => {
+                    toast.classList.remove('translate-y-0', 'opacity-100');
+                    toast.classList.add('translate-y-10', 'opacity-0');
+                }, 3000);
+            }
+
+            // Validate quantity input
+            function validateQuantity(input) {
+                const value = parseInt(input.value);
+                const errorElement = input.nextElementSibling;
+
+                if (isNaN(value) || value < 1) {
+                    errorElement.textContent = 'Quantity must be at least 1';
+                    errorElement.classList.remove('hidden');
+                    input.classList.add('border-error');
+                    return false;
+                } else {
+                    errorElement.classList.add('hidden');
+                    input.classList.remove('border-error');
+                    return true;
+                }
+            }
+
+            // Handle quantity changes
+            cartItems.addEventListener('change', function (e) {
+                if (e.target.classList.contains('quantity-input')) {
+                    if (validateQuantity(e.target)) {
+                        // In a real app, you would send an AJAX request to update the cart
+                        updateCartTotals();
+                        showToast('Cart updated');
+                    }
+                }
+            });
+
+            // Handle item removal
+            cartItems.addEventListener('click', function (e) {
+                if (e.target.classList.contains('remove-item')) {
+                    const item = e.target.closest('.cart-item');
+
+                    // In a real app, you would send an AJAX request to remove the item
+                    item.classList.add('opacity-0', 'h-0');
+                    setTimeout(() => {
+                        item.remove();
+                        updateCartTotals();
+                        showToast('Item removed from cart');
+                    }, 300);
+                }
+            });
+
+            // Handle checkout
+            checkoutBtn.addEventListener('click', function () {
+                checkoutBtn.disabled = true;
+                checkoutSpinner.classList.remove('hidden');
+
+                // In a real app, you would validate the cart and proceed to checkout
+                setTimeout(() => {
+                    window.location.href = 'CheckoutPage.html';
+                }, 1000);
+            });
+
+            // Initialize cart totals
+            updateCartTotals();
+        });
+    </script>
+</body>
+
+</html>
+
+        checkoutPage.html
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            500: '#3B82F6',
+                            600: '#2563EB',
+                        },
+                        success: '#10B981',
+                        error: '#EF4444',
+                    },
+                    transitionProperty: {
+                        'width': 'width',
+                        'opacity': 'opacity',
+                    },
+                }
+            }
+        }
+    </script>
+</head>
+
+<body class="bg-gray-50 min-h-screen">
+    <!-- Header -->
+    <div class="bg-primary-500 py-4 px-6 shadow-md">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <h1 class="text-2xl font-bold text-white">Checkout</h1>
+            <div class="flex space-x-4">
+                <a href="#" class="text-white hover:text-primary-100 transition">Back to Cart</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+        <!-- Order Summary -->
+        <div class="bg-white rounded-xl shadow-md overflow-hidden mb-8">
+            <div class="bg-gray-50 px-6 py-4 border-b border-gray-200">
+                <h2 class="text-lg font-semibold text-gray-800">Order Summary</h2>
+            </div>
+            <div class="p-6">
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th scope="col"
+                                    class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Product</th>
+                                <th scope="col"
+                                    class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Category</th>
+                                <th scope="col"
+                                    class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Price</th>
+                                <th scope="col"
+                                    class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Qty</th>
+                                <th scope="col"
+                                    class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Subtotal</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            <!-- Product 1 -->
+                            <tr>
+                                <td class="px-4 py-4">
+                                    <div class="flex items-center">
+                                        <div class="flex-shrink-0 h-16 w-16">
+                                            <img src="defaultProd.png" alt="Product"
+                                                class="h-full w-full object-contain">
+                                        </div>
+                                        <div class="ml-4">
+                                            <div class="text-sm font-medium text-gray-900">Vinyl Sticker Pack</div>
+                                            <div class="text-sm text-gray-500 line-clamp-1">Durable vinyl stickers
+                                                perfect for outdoor use</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-4 py-4 text-sm text-gray-500">Vinyl</td>
+                                <td class="px-4 py-4 text-sm text-gray-500">$12.99</td>
+                                <td class="px-4 py-4 text-sm text-gray-500">2</td>
+                                <td class="px-4 py-4 text-sm font-medium text-gray-900">$25.98</td>
+                            </tr>
+
+                            <!-- Product 2 -->
+                            <tr>
+                                <td class="px-4 py-4">
+                                    <div class="flex items-center">
+                                        <div class="flex-shrink-0 h-16 w-16">
+                                            <img src="defaultProd.png" alt="Product"
+                                                class="h-full w-full object-contain">
+                                        </div>
+                                        <div class="ml-4">
+                                            <div class="text-sm font-medium text-gray-900">Holographic Sticker</div>
+                                            <div class="text-sm text-gray-500 line-clamp-1">Eye-catching holographic
+                                                effect stickers</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-4 py-4 text-sm text-gray-500">Holographic</td>
+                                <td class="px-4 py-4 text-sm text-gray-500">$14.99</td>
+                                <td class="px-4 py-4 text-sm text-gray-500">1</td>
+                                <td class="px-4 py-4 text-sm font-medium text-gray-900">$14.99</td>
+                            </tr>
+
+                            <!-- Shipping Row -->
+                            <tr>
+                                <td colspan="4" class="px-4 py-4 text-sm font-medium text-gray-900 text-right">Shipping
+                                </td>
+                                <td class="px-4 py-4 text-sm text-gray-500">$5.99</td>
+                            </tr>
+
+                            <!-- Total Row -->
+                            <tr class="bg-gray-50 font-semibold">
+                                <td colspan="4" class="px-4 py-4 text-sm font-medium text-gray-900 text-right">Total
+                                    Amount</td>
+                                <td class="px-4 py-4 text-sm font-medium text-gray-900">$46.96</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Shipping and Payment Details -->
+        <div class="bg-white rounded-xl shadow-md overflow-hidden">
+            <div class="bg-gray-50 px-6 py-4 border-b border-gray-200">
+                <h2 class="text-lg font-semibold text-gray-800">Shipping & Payment Information</h2>
+            </div>
+            <div class="p-6">
+                <form id="checkoutForm" class="space-y-6">
+                    <!-- Shipping Address -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="md:col-span-2">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Shipping Address</label>
+                            <div class="p-4 border rounded-lg bg-gray-50">
+                                <p id="shipping_address">123 Main St, Apt 4B, New York, NY 10001, United States</p>
+                            </div>
+                            <input type="hidden" name="shipping_address" value="123 Main St, Apt 4B">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">City</label>
+                            <div class="p-4 border rounded-lg bg-gray-50">
+                                <p id="shipping_city">New York</p>
+                            </div>
+                            <input type="hidden" name="shipping_city" value="New York">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">State/Province</label>
+                            <div class="p-4 border rounded-lg bg-gray-50">
+                                <p id="shipping_state">NY</p>
+                            </div>
+                            <input type="hidden" name="shipping_state" value="NY">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Country</label>
+                            <div class="p-4 border rounded-lg bg-gray-50">
+                                <p id="shipping_country">United States</p>
+                            </div>
+                            <input type="hidden" name="shipping_country" value="United States">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Payment Method</label>
+                            <div class="p-4 border rounded-lg bg-gray-50">
+                                <p id="payment_method">Credit Card</p>
+                            </div>
+                            <input type="hidden" name="payment_method" value="credit_card">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Total Amount</label>
+                            <div class="p-4 border rounded-lg bg-gray-50">
+                                <p id="total_amount">$46.96</p>
+                            </div>
+                            <input type="hidden" name="total_amount" value="46.96">
+                        </div>
+
+                        <!-- Extra Notes -->
+                        <div class="md:col-span-2">
+                            <label for="extra_notes" class="block text-sm font-medium text-gray-700 mb-1">Special
+                                Instructions (Optional)</label>
+                            <textarea id="extra_notes" name="extra_notes" rows="3"
+                                class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition"
+                                placeholder="Any special delivery instructions?"></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Form Actions -->
+                    <div class="flex items-center justify-end pt-6 border-t border-gray-200">
+                        <button type="button"
+                            class="px-6 py-2 border rounded-lg text-gray-700 hover:bg-gray-100 transition mr-4">
+                            Back to Cart
+                        </button>
+                        <button type="submit" id="submitBtn"
+                            class="px-6 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition flex items-center">
+                            <span>Place Order</span>
+                            <svg id="spinner" class="hidden w-4 h-4 ml-2 animate-spin"
+                                xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                                    stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor"
+                                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                                </path>
+                            </svg>
+                        </button>
+                    </div>
+
+                    <!-- Form Messages -->
+                    <div id="formMessage" class="hidden p-4 rounded-lg"></div>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <!-- Order Confirmation Modal -->
+    <div id="confirmationModal"
+        class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50 opacity-0 pointer-events-none transition-opacity duration-300">
+        <div class="bg-white rounded-xl shadow-xl max-w-md w-full transform transition-all duration-300 scale-95">
+            <div class="p-6 space-y-4 text-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto text-success" fill="none"
+                    viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                </svg>
+
+                <h2 class="text-2xl font-bold text-gray-800">Order Confirmed!</h2>
+                <p class="text-gray-600">Your order has been placed successfully.</p>
+                <p class="text-sm text-gray-500">Order ID: #ORD-123456</p>
+
+                <div class="pt-4">
+                    <button id="closeConfirmation"
+                        class="px-6 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition">
+                        Continue Shopping
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const checkoutForm = document.getElementById('checkoutForm');
+            const submitBtn = document.getElementById('submitBtn');
+            const spinner = document.getElementById('spinner');
+            const formMessage = document.getElementById('formMessage');
+            const confirmationModal = document.getElementById('confirmationModal');
+            const closeConfirmation = document.getElementById('closeConfirmation');
+
+            // Show form message
+            function showMessage(type, message) {
+                formMessage.textContent = message;
+                formMessage.className = `p-4 rounded-lg ${type === 'success' ? 'bg-success-100 text-success-700' : 'bg-error-100 text-error-700'}`;
+                formMessage.classList.remove('hidden');
+
+                // Scroll to message
+                formMessage.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+
+            // Show confirmation modal
+            function showConfirmation() {
+                confirmationModal.classList.remove('opacity-0', 'pointer-events-none');
+                confirmationModal.classList.add('opacity-100', 'pointer-events-auto');
+
+                setTimeout(() => {
+                    confirmationModal.querySelector('div').classList.remove('scale-95');
+                    confirmationModal.querySelector('div').classList.add('scale-100');
+                }, 10);
+            }
+
+            // Close confirmation modal
+            function closeConfirmationModal() {
+                confirmationModal.querySelector('div').classList.remove('scale-100');
+                confirmationModal.querySelector('div').classList.add('scale-95');
+
+                setTimeout(() => {
+                    confirmationModal.classList.remove('opacity-100', 'pointer-events-auto');
+                    confirmationModal.classList.add('opacity-0', 'pointer-events-none');
+                }, 300);
+            }
+
+            // Form submission
+            checkoutForm.addEventListener('submit', async function (e) {
+                e.preventDefault();
+
+                // Show loading state
+                submitBtn.disabled = true;
+                spinner.classList.remove('hidden');
+                submitBtn.querySelector('span').textContent = 'Processing...';
+
+                try {
+                    // Simulate form submission (replace with actual fetch to Flask backend)
+                    await new Promise(resolve => setTimeout(resolve, 1500));
+
+                    // Show confirmation modal
+                    showConfirmation();
+
+                    // Reset form (optional)
+                    // checkoutForm.reset();
+                } catch (error) {
+                    // Show error message
+                    showMessage('error', 'An error occurred while processing your order. Please try again.');
+                    console.error('Error:', error);
+                } finally {
+                    // Reset button state
+                    submitBtn.disabled = false;
+                    spinner.classList.add('hidden');
+                    submitBtn.querySelector('span').textContent = 'Place Order';
+                }
+            });
+
+            // Close confirmation modal
+            closeConfirmation.addEventListener('click', closeConfirmationModal);
+        });
+    </script>
+</body>
+
+</html>
+
+        confirmOrder.html
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Confirmation</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            500: '#3B82F6',
+                            600: '#2563EB',
+                        },
+                        success: '#10B981',
+                        error: '#EF4444',
+                    },
+                    transitionProperty: {
+                        'width': 'width',
+                    },
+                }
+            }
+        }
+    </script>
+</head>
+
+<body class="bg-gray-50 min-h-screen flex items-center justify-center p-4">
+    <div class="w-full max-w-4xl bg-white rounded-xl shadow-lg overflow-hidden">
+        <div class="bg-primary-500 py-4 px-6">
+            <h1 class="text-2xl font-bold text-white">Order Confirmation</h1>
+            <p class="text-primary-100">Review your order and complete payment</p>
+        </div>
+
+        <div class="p-6 space-y-8">
+            <!-- Order Summary Table -->
+            <div class="overflow-x-auto">
+                <h2 class="text-lg font-semibold text-gray-800 mb-3">Order Summary</h2>
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th scope="col"
+                                class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Item</th>
+                            <th scope="col"
+                                class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Quantity</th>
+                            <th scope="col"
+                                class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Price</th>
+                            <th scope="col"
+                                class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Subtotal</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        <tr>
+                            <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">Premium Widget</td>
+                            <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">2</td>
+                            <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">$24.99</td>
+                            <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">$49.98</td>
+                        </tr>
+                        <tr>
+                            <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">Standard Widget</td>
+                            <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">1</td>
+                            <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">$14.99</td>
+                            <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">$14.99</td>
+                        </tr>
+                        <tr>
+                            <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">Shipping</td>
+                            <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500" colspan="2">Standard</td>
+                            <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">$5.99</td>
+                        </tr>
+                        <tr class="bg-gray-50 font-semibold">
+                            <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900" colspan="3">Total Amount</td>
+                            <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">$70.96</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Shipping and Payment Form -->
+            <form id="orderForm" class="space-y-6" novalidate>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Payment Method -->
+                    <div>
+                        <label for="payment_method" class="block text-sm font-medium text-gray-700 mb-1">Payment Method
+                            *</label>
+                        <select id="payment_method" name="payment_method" required
+                            class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition bg-white">
+                            <option value="" disabled selected>Select payment method</option>
+                            <option value="COD">Cash on Delivery (COD)</option>
+                            <option value="credit_card">Credit Card</option>
+                            <option value="debit_card">Debit Card</option>
+                            <option value="paypal">PayPal</option>
+                            <option value="bank_transfer">Bank Transfer</option>
+                            <option value="digital_wallet">Digital Wallet</option>
+                        </select>
+                        <p id="payment_method_error" class="mt-1 text-sm text-error hidden">Please select a payment
+                            method</p>
+                    </div>
+
+                    <!-- Shipping Country -->
+                    <div>
+                        <label for="shipping_country" class="block text-sm font-medium text-gray-700 mb-1">Country
+                            *</label>
+                        <input type="text" id="shipping_country" name="shipping_country" required
+                            class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition"
+                            placeholder="United States">
+                        <p id="shipping_country_error" class="mt-1 text-sm text-error hidden">Country is required</p>
+                    </div>
+
+                    <!-- Shipping Address -->
+                    <div class="md:col-span-2">
+                        <label for="shipping_address" class="block text-sm font-medium text-gray-700 mb-1">Shipping
+                            Address *</label>
+                        <textarea id="shipping_address" name="shipping_address" rows="2" required
+                            class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition"
+                            placeholder="123 Main St, Apt 4B"></textarea>
+                        <p id="shipping_address_error" class="mt-1 text-sm text-error hidden">Shipping address is
+                            required</p>
+                    </div>
+
+                    <!-- Shipping City -->
+                    <div>
+                        <label for="shipping_city" class="block text-sm font-medium text-gray-700 mb-1">City *</label>
+                        <input type="text" id="shipping_city" name="shipping_city" required
+                            class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition"
+                            placeholder="New York">
+                        <p id="shipping_city_error" class="mt-1 text-sm text-error hidden">City is required</p>
+                    </div>
+
+                    <!-- Shipping State -->
+                    <div>
+                        <label for="shipping_state"
+                            class="block text-sm font-medium text-gray-700 mb-1">State/Province</label>
+                        <input type="text" id="shipping_state" name="shipping_state"
+                            class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition"
+                            placeholder="NY">
+                    </div>
+
+                    <!-- Extra Notes -->
+                    <div class="md:col-span-2">
+                        <label for="extra_notes" class="block text-sm font-medium text-gray-700 mb-1">Special
+                            Instructions</label>
+                        <textarea id="extra_notes" name="extra_notes" rows="3"
+                            class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition"
+                            placeholder="Any special delivery instructions?"></textarea>
+                    </div>
+
+                    <!-- Total Amount (hidden field) -->
+                    <input type="hidden" id="total_amount" name="total_amount" value="70.96">
+                </div>
+
+                <!-- Form Actions -->
+                <div class="flex items-center justify-between pt-6 border-t border-gray-200">
+                    <a href="#" class="text-primary-500 hover:text-primary-600 font-medium transition">← Back to
+                        cart</a>
+                    <div class="flex items-center space-x-4">
+                        <button type="reset"
+                            class="px-6 py-2 border rounded-lg text-gray-700 hover:bg-gray-100 transition">
+                            Reset
+                        </button>
+                        <button type="submit" id="submitBtn"
+                            class="px-6 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition flex items-center">
+                            <span>Confirm Order</span>
+                            <svg id="spinner" class="hidden w-4 h-4 ml-2 animate-spin"
+                                xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                                    stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor"
+                                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                                </path>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Form Messages -->
+                <div id="formMessage" class="hidden p-4 rounded-lg"></div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const form = document.getElementById('orderForm');
+            const submitBtn = document.getElementById('submitBtn');
+            const spinner = document.getElementById('spinner');
+            const formMessage = document.getElementById('formMessage');
+
+            // Show error message
+            function showError(fieldId, message) {
+                const field = document.getElementById(fieldId);
+                const errorElement = document.getElementById(`${fieldId}_error`);
+
+                field.classList.add('border-error');
+                errorElement.textContent = message;
+                errorElement.classList.remove('hidden');
+            }
+
+            // Hide error message
+            function hideError(fieldId) {
+                const field = document.getElementById(fieldId);
+                const errorElement = document.getElementById(`${fieldId}_error`);
+
+                field.classList.remove('border-error');
+                errorElement.classList.add('hidden');
+            }
+
+            // Show form message
+            function showMessage(type, message) {
+                formMessage.textContent = message;
+                formMessage.className = `p-4 rounded-lg ${type === 'success' ? 'bg-success-100 text-success-700' : 'bg-error-100 text-error-700'}`;
+                formMessage.classList.remove('hidden');
+
+                // Scroll to message
+                formMessage.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+
+            // Form validation
+            function validateForm() {
+                let isValid = true;
+
+                // Validate payment method
+                const paymentMethod = document.getElementById('payment_method').value;
+                if (!paymentMethod) {
+                    showError('payment_method', 'Please select a payment method');
+                    isValid = false;
+                } else {
+                    hideError('payment_method');
+                }
+
+                // Validate shipping address
+                const shippingAddress = document.getElementById('shipping_address').value.trim();
+                if (!shippingAddress) {
+                    showError('shipping_address', 'Shipping address is required');
+                    isValid = false;
+                } else {
+                    hideError('shipping_address');
+                }
+
+                // Validate shipping city
+                const shippingCity = document.getElementById('shipping_city').value.trim();
+                if (!shippingCity) {
+                    showError('shipping_city', 'City is required');
+                    isValid = false;
+                } else {
+                    hideError('shipping_city');
+                }
+
+                // Validate shipping country
+                const shippingCountry = document.getElementById('shipping_country').value.trim();
+                if (!shippingCountry) {
+                    showError('shipping_country', 'Country is required');
+                    isValid = false;
+                } else {
+                    hideError('shipping_country');
+                }
+
+                return isValid;
+            }
+
+            // Form submission
+            form.addEventListener('submit', async function (e) {
+                e.preventDefault();
+
+                // Validate form
+                if (!validateForm()) {
+                    return;
+                }
+
+                // Show loading state
+                submitBtn.disabled = true;
+                spinner.classList.remove('hidden');
+                submitBtn.querySelector('span').textContent = 'Processing...';
+
+                try {
+                    // Simulate form submission (replace with actual fetch to Flask backend)
+                    await new Promise(resolve => setTimeout(resolve, 1500));
+
+                    // Show success message
+                    showMessage('success', 'Order confirmed successfully! Your order is being processed.');
+
+                    // Optional: Redirect to order confirmation page
+                    // window.location.href = '/order-confirmation';
+                } catch (error) {
+                    // Show error message
+                    showMessage('error', 'An error occurred while processing your order. Please try again.');
+                    console.error('Error:', error);
+                } finally {
+                    // Reset button state
+                    submitBtn.disabled = false;
+                    spinner.classList.add('hidden');
+                    submitBtn.querySelector('span').textContent = 'Confirm Order';
+                }
+            });
+
+            // Real-time validation for required fields
+            document.getElementById('payment_method').addEventListener('change', function () {
+                if (this.value) hideError('payment_method');
+            });
+
+            document.getElementById('shipping_address').addEventListener('input', function () {
+                if (this.value.trim()) hideError('shipping_address');
+            });
+
+            document.getElementById('shipping_city').addEventListener('input', function () {
+                if (this.value.trim()) hideError('shipping_city');
+            });
+
+            document.getElementById('shipping_country').addEventListener('input', function () {
+                if (this.value.trim()) hideError('shipping_country');
+            });
+        });
+    </script>
+</body>
+
+</html>
+
+        prodCatalogue.html
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Catalog</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            500: '#3B82F6',
+                            600: '#2563EB',
+                        },
+                        success: '#10B981',
+                        error: '#EF4444',
+                    },
+                    transitionProperty: {
+                        'width': 'width',
+                        'opacity': 'opacity',
+                        'transform': 'transform',
+                    },
+                }
+            }
+        }
+    </script>
+</head>
+
+<body class="bg-gray-50 min-h-screen">
+    <!-- Header -->
+    <div class="bg-primary-500 py-4 px-6 shadow-md">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <h1 class="text-2xl font-bold text-white">Product Catalog</h1>
+            <div class="flex space-x-4">
+                <a href="#" class="text-white hover:text-primary-100 transition">Cart (0)</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+        <!-- Filter/Sort Controls -->
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+            <div class="w-full md:w-auto">
+                <label for="categoryFilter" class="block text-sm font-medium text-gray-700 mb-1">Filter by
+                    Category</label>
+                <select id="categoryFilter"
+                    class="w-full md:w-48 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition bg-white">
+                    <option value="all">All Categories</option>
+                    <option value="Vinyl">Vinyl</option>
+                    <option value="Matte">Matte</option>
+                    <option value="Glossy">Glossy</option>
+                    <option value="Holographic">Holographic</option>
+                </select>
+            </div>
+            <div class="w-full md:w-auto">
+                <label for="sortBy" class="block text-sm font-medium text-gray-700 mb-1">Sort by</label>
+                <select id="sortBy"
+                    class="w-full md:w-48 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition bg-white">
+                    <option value="price-asc">Price: Low to High</option>
+                    <option value="price-desc">Price: High to Low</option>
+                    <option value="name-asc">Name: A to Z</option>
+                    <option value="name-desc">Name: Z to A</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Product Grid -->
+        <div id="productGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+            <!-- Products will be dynamically inserted here -->
+        </div>
+
+        <!-- Pagination -->
+        <div class="flex justify-center items-center space-x-2">
+            <button id="prevPage"
+                class="px-4 py-2 border rounded-lg text-gray-700 hover:bg-gray-100 transition disabled:opacity-50"
+                disabled>
+                Previous
+            </button>
+            <span id="pageInfo" class="px-4 py-2 text-gray-700">Page 1 of 2</span>
+            <button id="nextPage" class="px-4 py-2 border rounded-lg text-gray-700 hover:bg-gray-100 transition">
+                Next
+            </button>
+        </div>
+    </main>
+
+    <!-- Product Modal -->
+    <div id="productModal"
+        class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50 opacity-0 pointer-events-none transition-opacity duration-300">
+        <div
+            class="bg-white rounded-xl shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto transform transition-all duration-300 scale-95">
+            <div class="p-6 space-y-4">
+                <div class="flex justify-between items-start">
+                    <h2 id="modalProductName" class="text-xl font-bold text-gray-800"></h2>
+                    <button id="closeModal" class="text-gray-500 hover:text-gray-700">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+
+                <img id="modalProductImage" src="defaultProd.png" alt="Product"
+                    class="w-full h-48 object-contain rounded-lg">
+
+                <p id="modalProductCategory" class="text-sm text-gray-500 uppercase font-medium"></p>
+                <p id="modalProductDescription" class="text-gray-700"></p>
+                <p id="modalProductPrice" class="text-lg font-semibold text-gray-900"></p>
+
+                <div class="pt-4 border-t border-gray-200">
+                    <form id="addToCartForm">
+                        <input type="hidden" id="modalProductId" name="product_id">
+
+                        <div class="mb-4">
+                            <label for="quantity" class="block text-sm font-medium text-gray-700 mb-1">Quantity</label>
+                            <input type="number" id="quantity" name="quantity" min="1" value="1"
+                                class="w-24 px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition">
+                            <p id="quantityError" class="mt-1 text-sm text-error hidden">Please enter a valid quantity
+                                (min 1)</p>
+                        </div>
+
+                        <button type="submit"
+                            class="w-full px-6 py-3 bg-primary-500 text-white rounded-lg hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition flex justify-center items-center">
+                            <span>Add to Cart</span>
+                            <svg id="cartSpinner" class="hidden w-5 h-5 ml-2 animate-spin"
+                                xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                                    stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor"
+                                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                                </path>
+                            </svg>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Message Toast -->
+    <div id="toast"
+        class="fixed bottom-4 right-4 bg-primary-500 text-white px-6 py-3 rounded-lg shadow-lg transform translate-y-10 opacity-0 transition-all duration-300">
+        <div class="flex items-center">
+            <span id="toastMessage"></span>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Sample product data
+            const products = [
+                {
+                    id: 1, name: 'Vinyl Sticker Pack', category: 'Vinyl', price: 12.99,
+                    description: 'Durable vinyl stickers perfect for outdoor use. Pack of 5 assorted designs.'
+                },
+                {
+                    id: 2, name: 'Matte Finish Sticker', category: 'Matte', price: 8.99,
+                    description: 'Elegant matte finish stickers with a smooth texture. Pack of 3.'
+                },
+                {
+                    id: 3, name: 'Glossy Premium Sticker', category: 'Glossy', price: 10.99,
+                    description: 'High-gloss stickers with vibrant colors. Water resistant.'
+                },
+                {
+                    id: 4, name: 'Holographic Sticker', category: 'Holographic', price: 14.99,
+                    description: 'Eye-catching holographic effect stickers. Pack of 4.'
+                },
+                {
+                    id: 5, name: 'Vinyl Decal Bundle', category: 'Vinyl', price: 18.99,
+                    description: 'Large vinyl decals for cars and laptops. 3 different sizes.'
+                },
+                {
+                    id: 6, name: 'Matte Black Sticker', category: 'Matte', price: 6.99,
+                    description: 'Minimalist matte black stickers. Simple and elegant.'
+                },
+                {
+                    id: 7, name: 'Glossy Weatherproof Sticker', category: 'Glossy', price: 9.99,
+                    description: 'Weather-resistant glossy stickers for outdoor use.'
+                },
+                {
+                    id: 8, name: 'Holographic Rainbow Sticker', category: 'Holographic', price: 11.99,
+                    description: 'Color-shifting holographic stickers with rainbow effect.'
+                },
+                {
+                    id: 9, name: 'Vinyl Bumper Sticker', category: 'Vinyl', price: 7.99,
+                    description: 'Classic vinyl bumper sticker. One size.'
+                },
+                {
+                    id: 10, name: 'Matte White Sticker', category: 'Matte', price: 5.99,
+                    description: 'Clean matte white stickers. Perfect for customization.'
+                },
+                {
+                    id: 11, name: 'Glossy Clear Sticker', category: 'Glossy', price: 8.49,
+                    description: 'Transparent glossy stickers with vibrant print.'
+                },
+                {
+                    id: 12, name: 'Holographic Star Sticker', category: 'Holographic', price: 13.99,
+                    description: 'Star-shaped holographic stickers. Pack of 10.'
+                }
+            ];
+
+            // DOM elements
+            const productGrid = document.getElementById('productGrid');
+            const categoryFilter = document.getElementById('categoryFilter');
+            const sortBy = document.getElementById('sortBy');
+            const prevPageBtn = document.getElementById('prevPage');
+            const nextPageBtn = document.getElementById('nextPage');
+            const pageInfo = document.getElementById('pageInfo');
+            const productModal = document.getElementById('productModal');
+            const closeModal = document.getElementById('closeModal');
+            const addToCartForm = document.getElementById('addToCartForm');
+            const quantityInput = document.getElementById('quantity');
+            const quantityError = document.getElementById('quantityError');
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toastMessage');
+
+            // State variables
+            let currentPage = 1;
+            const productsPerPage = 6;
+            let filteredProducts = [...products];
+            let sortedProducts = [...products];
+
+            // Initialize the page
+            function init() {
+                renderProducts();
+                setupEventListeners();
+            }
+
+            // Set up event listeners
+            function setupEventListeners() {
+                categoryFilter.addEventListener('change', filterProducts);
+                sortBy.addEventListener('change', sortProducts);
+                prevPageBtn.addEventListener('click', goToPrevPage);
+                nextPageBtn.addEventListener('click', goToNextPage);
+                closeModal.addEventListener('click', closeProductModal);
+                addToCartForm.addEventListener('submit', handleAddToCart);
+            }
+
+            // Filter products by category
+            function filterProducts() {
+                const category = categoryFilter.value;
+
+                if (category === 'all') {
+                    filteredProducts = [...products];
+                } else {
+                    filteredProducts = products.filter(product => product.category === category);
+                }
+
+                currentPage = 1;
+                sortProducts();
+            }
+
+            // Sort products
+            function sortProducts() {
+                const sortValue = sortBy.value;
+
+                sortedProducts = [...filteredProducts];
+
+                switch (sortValue) {
+                    case 'price-asc':
+                        sortedProducts.sort((a, b) => a.price - b.price);
+                        break;
+                    case 'price-desc':
+                        sortedProducts.sort((a, b) => b.price - a.price);
+                        break;
+                    case 'name-asc':
+                        sortedProducts.sort((a, b) => a.name.localeCompare(b.name));
+                        break;
+                    case 'name-desc':
+                        sortedProducts.sort((a, b) => b.name.localeCompare(a.name));
+                        break;
+                }
+
+                renderProducts();
+            }
+
+            // Pagination functions
+            function goToPrevPage() {
+                if (currentPage > 1) {
+                    currentPage--;
+                    renderProducts();
+                }
+            }
+
+            function goToNextPage() {
+                if (currentPage < Math.ceil(sortedProducts.length / productsPerPage)) {
+                    currentPage++;
+                    renderProducts();
+                }
+            }
+
+            // Render products to the grid
+            function renderProducts() {
+                const startIndex = (currentPage - 1) * productsPerPage;
+                const endIndex = startIndex + productsPerPage;
+                const paginatedProducts = sortedProducts.slice(startIndex, endIndex);
+
+                productGrid.innerHTML = '';
+
+                if (paginatedProducts.length === 0) {
+                    productGrid.innerHTML = '<p class="col-span-full text-center text-gray-500 py-8">No products found matching your criteria.</p>';
+                } else {
+                    paginatedProducts.forEach(product => {
+                        const productCard = createProductCard(product);
+                        productGrid.appendChild(productCard);
+                    });
+                }
+
+                updatePaginationControls();
+            }
+
+            // Create a product card element
+            function createProductCard(product) {
+                const card = document.createElement('div');
+                card.className = 'bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300 cursor-pointer';
+                card.dataset.id = product.id;
+
+                card.innerHTML = `
+                    <div class="p-4">
+                        <img src="defaultProd.png" alt="${product.name}" class="w-full h-40 object-contain mb-4">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-sm text-gray-500 uppercase font-medium">${product.category}</p>
+                                <h3 class="text-lg font-semibold text-gray-800">${product.name}</h3>
+                            </div>
+                            <p class="text-lg font-bold text-primary-500">$${product.price.toFixed(2)}</p>
+                        </div>
+                        <p class="mt-2 text-gray-600 text-sm line-clamp-2">${product.description}</p>
+                    </div>
+                `;
+
+                card.addEventListener('click', () => openProductModal(product));
+                return card;
+            }
+
+            // Update pagination controls
+            function updatePaginationControls() {
+                const totalPages = Math.ceil(sortedProducts.length / productsPerPage);
+
+                pageInfo.textContent = `Page ${currentPage} of ${totalPages}`;
+                prevPageBtn.disabled = currentPage === 1;
+                nextPageBtn.disabled = currentPage === totalPages || totalPages === 0;
+            }
+
+            // Product modal functions
+            function openProductModal(product) {
+                document.getElementById('modalProductId').value = product.id;
+                document.getElementById('modalProductName').textContent = product.name;
+                document.getElementById('modalProductCategory').textContent = product.category;
+                document.getElementById('modalProductDescription').textContent = product.description;
+                document.getElementById('modalProductPrice').textContent = `$${product.price.toFixed(2)}`;
+                document.getElementById('modalProductImage').src = 'defaultProd.png';
+                document.getElementById('modalProductImage').alt = product.name;
+                quantityInput.value = 1;
+                quantityError.classList.add('hidden');
+
+                productModal.classList.remove('opacity-0', 'pointer-events-none');
+                productModal.classList.add('opacity-100', 'pointer-events-auto');
+
+                setTimeout(() => {
+                    productModal.querySelector('div').classList.remove('scale-95');
+                    productModal.querySelector('div').classList.add('scale-100');
+                }, 10);
+            }
+
+            function closeProductModal() {
+                productModal.querySelector('div').classList.remove('scale-100');
+                productModal.querySelector('div').classList.add('scale-95');
+
+                setTimeout(() => {
+                    productModal.classList.remove('opacity-100', 'pointer-events-auto');
+                    productModal.classList.add('opacity-0', 'pointer-events-none');
+                }, 300);
+            }
+
+            // Handle add to cart
+            function handleAddToCart(e) {
+                e.preventDefault();
+
+                const productId = document.getElementById('modalProductId').value;
+                const quantity = parseInt(quantityInput.value);
+
+                // Validate quantity
+                if (isNaN(quantity) || quantity < 1) {
+                    quantityError.classList.remove('hidden');
+                    return;
+                }
+
+                // Simulate API call to add to cart
+                const addToCartBtn = e.target.querySelector('button[type="submit"]');
+                const cartSpinner = document.getElementById('cartSpinner');
+
+                addToCartBtn.disabled = true;
+                cartSpinner.classList.remove('hidden');
+
+                // This would be replaced with actual fetch to Flask backend
+                setTimeout(() => {
+                    addToCartBtn.disabled = false;
+                    cartSpinner.classList.add('hidden');
+
+                    showToast(`${quantity} ${quantity === 1 ? 'item' : 'items'} added to cart`);
+                    closeProductModal();
+                }, 1000);
+            }
+
+            // Show toast message
+            function showToast(message) {
+                toastMessage.textContent = message;
+                toast.classList.remove('translate-y-10', 'opacity-0');
+                toast.classList.add('translate-y-0', 'opacity-100');
+
+                setTimeout(() => {
+                    toast.classList.remove('translate-y-0', 'opacity-100');
+                    toast.classList.add('translate-y-10', 'opacity-0');
+                }, 3000);
+            }
+
+            // Initialize the page
+            init();
+        });
+    </script>
+</body>
+
+</html>
+
+        regCustomer.html
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Registration</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            500: '#3B82F6',
+                            600: '#2563EB',
+                        },
+                        success: '#10B981',
+                        error: '#EF4444',
+                    },
+                    transitionProperty: {
+                        'width': 'width',
+                    },
+                }
+            }
+        }
+    </script>
+</head>
+
+<body class="bg-gray-50 min-h-screen flex items-center justify-center p-4">
+    <div class="w-full max-w-2xl bg-white rounded-xl shadow-lg overflow-hidden">
+        <div class="bg-primary-500 py-4 px-6">
+            <h1 class="text-2xl font-bold text-white">Customer Registration</h1>
+            <p class="text-primary-100">Please fill in the form to register</p>
+        </div>
+
+        <form id="registrationForm" class="p-6 space-y-6" novalidate>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- First Name -->
+                <div>
+                    <label for="first_name" class="block text-sm font-medium text-gray-700 mb-1">First Name *</label>
+                    <input type="text" id="first_name" name="first_name" required
+                        class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition"
+                        placeholder="John">
+                    <p id="first_name_error" class="mt-1 text-sm text-error hidden">First name is required</p>
+                </div>
+
+                <!-- Last Name -->
+                <div>
+                    <label for="last_name" class="block text-sm font-medium text-gray-700 mb-1">Last Name *</label>
+                    <input type="text" id="last_name" name="last_name" required
+                        class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition"
+                        placeholder="Doe">
+                    <p id="last_name_error" class="mt-1 text-sm text-error hidden">Last name is required</p>
+                </div>
+
+                <!-- Email -->
+                <div class="md:col-span-2">
+                    <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email *</label>
+                    <input type="email" id="email" name="email" required
+                        class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition"
+                        placeholder="john.doe@example.com">
+                    <p id="email_error" class="mt-1 text-sm text-error hidden">Please enter a valid email address</p>
+                </div>
+
+                <!-- Phone -->
+                <div class="md:col-span-2">
+                    <label for="phone" class="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
+                    <input type="tel" id="phone" name="phone"
+                        class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition"
+                        placeholder="+1 (555) 123-4567">
+                </div>
+
+                <!-- Address -->
+                <div class="md:col-span-2">
+                    <label for="address" class="block text-sm font-medium text-gray-700 mb-1">Address</label>
+                    <textarea id="address" name="address" rows="2"
+                        class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition"
+                        placeholder="123 Main St"></textarea>
+                </div>
+
+                <!-- City -->
+                <div>
+                    <label for="city" class="block text-sm font-medium text-gray-700 mb-1">City</label>
+                    <input type="text" id="city" name="city"
+                        class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition"
+                        placeholder="New York">
+                </div>
+
+                <!-- State -->
+                <div>
+                    <label for="state" class="block text-sm font-medium text-gray-700 mb-1">State/Province</label>
+                    <input type="text" id="state" name="state"
+                        class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition"
+                        placeholder="NY">
+                </div>
+
+                <!-- Country -->
+                <div>
+                    <label for="country" class="block text-sm font-medium text-gray-700 mb-1">Country</label>
+                    <input type="text" id="country" name="country"
+                        class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition"
+                        placeholder="United States">
+                </div>
+
+                <!-- Customer Tier -->
+                <div>
+                    <label for="customer_tier" class="block text-sm font-medium text-gray-700 mb-1">Customer
+                        Tier</label>
+                    <select id="customer_tier" name="customer_tier"
+                        class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition bg-white">
+                        <option value="regular">Regular</option>
+                        <option value="premium">Premium</option>
+                        <option value="vip">VIP</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="flex items-center justify-end space-x-4 pt-4">
+                <button type="reset" class="px-6 py-2 border rounded-lg text-gray-700 hover:bg-gray-100 transition">
+                    Reset
+                </button>
+                <button type="submit" id="submitBtn"
+                    class="px-6 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition flex items-center">
+                    <span>Register</span>
+                    <svg id="spinner" class="hidden w-4 h-4 ml-2 animate-spin" xmlns="http://www.w3.org/2000/svg"
+                        fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4">
+                        </circle>
+                        <path class="opacity-75" fill="currentColor"
+                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                        </path>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Form Messages -->
+            <div id="formMessage" class="hidden p-4 rounded-lg"></div>
+        </form>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const form = document.getElementById('registrationForm');
+            const submitBtn = document.getElementById('submitBtn');
+            const spinner = document.getElementById('spinner');
+            const formMessage = document.getElementById('formMessage');
+
+            // Validate email format
+            function isValidEmail(email) {
+                return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+            }
+
+            // Show error message
+            function showError(fieldId, message) {
+                const field = document.getElementById(fieldId);
+                const errorElement = document.getElementById(`${fieldId}_error`);
+
+                field.classList.add('border-error');
+                errorElement.textContent = message;
+                errorElement.classList.remove('hidden');
+            }
+
+            // Hide error message
+            function hideError(fieldId) {
+                const field = document.getElementById(fieldId);
+                const errorElement = document.getElementById(`${fieldId}_error`);
+
+                field.classList.remove('border-error');
+                errorElement.classList.add('hidden');
+            }
+
+            // Show form message
+            function showMessage(type, message) {
+                formMessage.textContent = message;
+                formMessage.className = `p-4 rounded-lg ${type === 'success' ? 'bg-success-100 text-success-700' : 'bg-error-100 text-error-700'}`;
+                formMessage.classList.remove('hidden');
+
+                // Scroll to message
+                formMessage.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+
+            // Form validation
+            function validateForm() {
+                let isValid = true;
+
+                // Validate first name
+                const firstName = document.getElementById('first_name').value.trim();
+                if (!firstName) {
+                    showError('first_name', 'First name is required');
+                    isValid = false;
+                } else {
+                    hideError('first_name');
+                }
+
+                // Validate last name
+                const lastName = document.getElementById('last_name').value.trim();
+                if (!lastName) {
+                    showError('last_name', 'Last name is required');
+                    isValid = false;
+                } else {
+                    hideError('last_name');
+                }
+
+                // Validate email
+                const email = document.getElementById('email').value.trim();
+                if (!email) {
+                    showError('email', 'Email is required');
+                    isValid = false;
+                } else if (!isValidEmail(email)) {
+                    showError('email', 'Please enter a valid email address');
+                    isValid = false;
+                } else {
+                    hideError('email');
+                }
+
+                return isValid;
+            }
+
+            // Form submission
+            form.addEventListener('submit', async function (e) {
+                e.preventDefault();
+
+                // Validate form
+                if (!validateForm()) {
+                    return;
+                }
+
+                // Show loading state
+                submitBtn.disabled = true;
+                spinner.classList.remove('hidden');
+                submitBtn.querySelector('span').textContent = 'Processing...';
+
+                try {
+                    // Simulate form submission (replace with actual fetch to Flask backend)
+                    await new Promise(resolve => setTimeout(resolve, 1500));
+
+                    // Show success message
+                    showMessage('success', 'Registration successful! Your account has been created.');
+
+                    // Reset form (optional)
+                    // form.reset();
+                } catch (error) {
+                    // Show error message
+                    showMessage('error', 'An error occurred. Please try again later.');
+                    console.error('Error:', error);
+                } finally {
+                    // Reset button state
+                    submitBtn.disabled = false;
+                    spinner.classList.add('hidden');
+                    submitBtn.querySelector('span').textContent = 'Register';
+                }
+            });
+
+            // Real-time validation for required fields
+            document.getElementById('first_name').addEventListener('input', function () {
+                if (this.value.trim()) hideError('first_name');
+            });
+
+            document.getElementById('last_name').addEventListener('input', function () {
+                if (this.value.trim()) hideError('last_name');
+            });
+
+            document.getElementById('email').addEventListener('input', function () {
+                if (this.value.trim() && isValidEmail(this.value.trim())) hideError('email');
+            });
+        });
+    </script>
+</body>
+
+</html>
+
+
+The databse schema:
+CREATE TYPE order_status AS ENUM (
+    'cart', 
+    'confirmed', 
+    'processing', 
+    'shipped', 
+    'delivered', 
+    'returned'
+);
+
+CREATE TYPE customer_tier AS ENUM ('regular', 'premium', 'vip');
+
+CREATE TYPE payment_method AS ENUM (
+    'COD', 
+    'credit_card', 
+    'debit_card', 
+    'paypal', 
+    'bank_transfer', 
+    'digital_wallet'
+);
+
+CREATE TABLE Supplier (
+    supplier_id SERIAL PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    contact_person VARCHAR(100),
+    email VARCHAR(100) UNIQUE NOT NULL,
+    phone VARCHAR(20) NOT NULL,
+    address TEXT NOT NULL,
+    city VARCHAR(50) NOT NULL,
+    state VARCHAR(50),
+    country VARCHAR(50) NOT NULL,
+    active BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    CHECK (email ~* '^[A-Za-z0-9._%-]+@[A-Za-z0-9.-]+[.][A-Za-z]+$')
+);
+
+CREATE TABLE Products (
+    product_id SERIAL PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    description TEXT,
+    category VARCHAR(50) NOT NULL,
+    price DECIMAL(10, 2) NOT NULL CHECK (price > 0),
+    supplier_id INTEGER NOT NULL REFERENCES Supplier(supplier_id),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE Inventory (
+    inventory_id SERIAL PRIMARY KEY,
+    product_id INTEGER UNIQUE NOT NULL REFERENCES Products(product_id) ON DELETE CASCADE,
+    quantity_in_stock INTEGER NOT NULL CHECK (quantity_in_stock >= 0) DEFAULT 0,
+    reorder_level INTEGER CHECK (reorder_level >= 0) DEFAULT 10,
+    last_stock_update TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    reserved_quantity INTEGER NOT NULL CHECK (reserved_quantity >= 0) DEFAULT 0
+);
+
+CREATE TABLE Customers (
+    customer_id SERIAL PRIMARY KEY,
+    first_name VARCHAR(50) NOT NULL,
+    last_name VARCHAR(50) NOT NULL,
+    email VARCHAR(100) UNIQUE NOT NULL,
+    phone VARCHAR(20),
+    address TEXT,
+    city VARCHAR(50),
+    state VARCHAR(50),
+    country VARCHAR(50),
+    password_hash VARCHAR(255) NOT NULL,
+    tier customer_tier DEFAULT 'regular',
+    cart INTEGER[] DEFAULT '{}',
+    orders INTEGER[] DEFAULT '{}',
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    CHECK (email ~* '^[A-Za-z0-9._%-]+@[A-Za-z0-9.-]+[.][A-Za-z]+$')
+);
+
+CREATE TABLE Orders (
+    order_id SERIAL PRIMARY KEY,
+    customer_id INTEGER NOT NULL REFERENCES Customers(customer_id),
+    order_date TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    status order_status DEFAULT 'cart',
+    payment_method payment_method,
+    payment BOOLEAN DEFAULT FALSE,
+    total_amount DECIMAL(12, 2) CHECK (total_amount >= 0),
+    shipping_address TEXT NOT NULL,
+    shipping_city VARCHAR(50) NOT NULL,
+    shipping_state VARCHAR(50),
+    shipping_country VARCHAR(50) NOT NULL,
+    items INTEGER[] NOT NULL,
+    quantities INTEGER[] NOT NULL,
+    notes TEXT
+);
+
+
+Bogus filled database:
+INSERT INTO Supplier (name, contact_person, email, phone, address, city, state, country, active) VALUES
+('KitchenTech Solutions', 'Emma Larson', 'emma.larson@kitchentech.com', '+1-555-123-4567', '123 Culinary Lane', 'Chicago', 'IL', 'USA', TRUE),
+('ElectroMart Supplies', 'James Patel', 'james.patel@electromart.com', '+44-20-7890-1234', '456 Tech Road', 'London', NULL, 'UK', TRUE),
+('FreshHarvest Foods', 'Maria Gonzalez', 'maria.gonzalez@freshharvest.com', '+1-408-987-6543', '789 Farm Street', 'Salinas', 'CA', 'USA', TRUE),
+('PlumbPro Equipment', 'Liam O’Connor', 'liam.oconnor@plumbpro.com', '+61-2-8765-4321', '101 Pipe Avenue', 'Sydney', 'NSW', 'Australia', TRUE),
+('ToolTrend Innovations', 'Sophie Kim', 'sophie.kim@tooltrend.com', '+1-303-555-7890', '321 Forge Boulevard', 'Denver', 'CO', 'USA', TRUE);
+
+
+ALTER TABLE Products
+ADD COLUMN image_path VARCHAR(255);
+INSERT INTO Products (name, description, category, price, supplier_id, image_path) VALUES
+-- Electronics (Supplier: ElectroMart Supplies, supplier_id: 2)
+('Smartphone Y', 'Latest model with 128GB storage and 48MP camera', 'Electronics', 699.99, 2, '/images/smartphone_y.jpg'),
+('Bluetooth Speaker', 'Portable speaker with 12-hour battery life', 'Electronics', 49.99, 2, '/images/bluetooth_speaker.jpg'),
+('Smart Bulb', 'Wi-Fi enabled LED bulb with color-changing features', 'Electronics', 19.99, 2, '/images/smart_bulb.jpg'),
+-- Food (Supplier: FreshHarvest Foods, supplier_id: 3)
+('Organic Quinoa', '1kg pack of premium organic quinoa', 'Food', 8.49, 3, '/images/organic_quinoa.jpg'),
+('Honey Jar', '500g jar of pure wildflower honey', 'Food', 12.99, 3, '/images/honey_jar.jpg'),
+('Almond Butter', '250g jar of creamy almond butter, no added sugar', 'Food', 7.99, 3, '/images/almond_butter.jpg'),
+-- Kitchen-ware (Supplier: KitchenTech Solutions, supplier_id: 1)
+('Ceramic Mixing Bow', '5L ceramic mixing bowl, dishwasher safe', 'Kitchen-ware', 24.99, 1, '/images/ceramic_mixing_bow.jpg'),
+('Chef''s Knife', '8-inch stainless steel chef''s knife with ergonomic handle', 'Kitchen-ware', 39.99, 1, '/images/chefs_knife.jpg'),
+('Silicone Spatula', 'Heat-resistant silicone spatula, 12 inches', 'Kitchen-ware', 9.99, 1, '/images/silicone_spatula.jpg'),
+-- Tools (Supplier: ToolTrend Innovations, supplier_id: 5)
+('Claw Hammer', '16oz claw hammer with non-slip grip', 'Tools', 14.99, 5, '/images/claw_hammer.jpg'),
+('Screw Set', '100-piece screw set for various applications', 'Tools', 12.49, 5, '/images/screw_set.jpg'),
+('Tape Measure', '25ft tape measure with lock mechanism', 'Tools', 8.99, 5, '/images/tape_measure.jpg');
+UPDATE Products
+SET image_path = REPLACE(image_path, '.jpg', '.png');
+
+INSERT INTO Inventory (product_id, quantity_in_stock, reorder_level, reserved_quantity) VALUES
+-- Electronics (product_id 1-3)
+(1, 50, 20, 5),    -- Smartphone Y: High-value item, moderate stock
+(2, 150, 50, 10),   -- Bluetooth Speaker: Popular item, higher stock
+(3, 300, 100, 20),  -- Smart Bulb: Smaller item, high stock
+-- Food (product_id 4-6)
+(4, 200, 50, 15),   -- Organic Quinoa: Bulk food item, decent stock
+(5, 120, 30, 8),    -- Honey Jar: Specialty food, moderate stock
+(6, 180, 40, 12),   -- Almond Butter: Similar to honey, slightly higher stock
+-- Kitchen-ware (product_id 7-9)
+(7, 80, 25, 5),     -- Ceramic Mixing Bow: Bulky item, moderate stock
+(8, 60, 20, 3),     -- Chef's Knife: High-quality item, lower stock
+(9, 250, 75, 10),   -- Silicone Spatula: Smaller, cheaper item, higher stock
+-- Tools (product_id 10-12)
+(10, 100, 30, 5),   -- Claw Hammer: Standard tool, moderate stock
+(11, 500, 150, 25), -- Screw Set: Small items sold in bulk, high stock
+(12, 200, 50, 10);  -- Tape Measure: Common tool, decent stock
+
+
+I will setup the Database connection provide location in the code.

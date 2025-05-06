@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Confirmation</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            500: '#3B82F6',
+                            600: '#2563EB',
+                        },
+                        success: '#10B981',
+                        error: '#EF4444',
+                    },
+                    transitionProperty: {
+                        'width': 'width',
+                    },
+                }
+            }
+        }
+    </script>
+</head>
+
+<body class="bg-gray-50 min-h-screen flex items-center justify-center p-4">
+    <div class="w-full max-w-4xl bg-white rounded-xl shadow-lg overflow-hidden">
+        <div class="bg-primary-500 py-4 px-6">
+            <h1 class="text-2xl font-bold text-white">Order Confirmation</h1>
+            <p class="text-primary-100">Review your order and complete payment</p>
+        </div>
+
+        <div class="p-6 space-y-8">
+            <!-- Order Summary Table -->
+            <div class="overflow-x-auto">
+                <h2 class="text-lg font-semibold text-gray-800 mb-3">Order Summary</h2>
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th scope="col"
+                                class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Item</th>
+                            <th scope="col"
+                                class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Quantity</th>
+                            <th scope="col"
+                                class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Price</th>
+                            <th scope="col"
+                                class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Subtotal</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        {% for item in order_items %}
+                        <tr>
+                            <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">{{ item.name }}</td>
+                            <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">{{ item.quantity }}</td>
+                            <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">${{ "%.2f"|format(item.price)
+                                }}</td>
+                            <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">${{
+                                "%.2f"|format(item.item_total) }}</td>
+                        </tr>
+                        {% endfor %}
+                        <!-- Shipping Row -->
+                        <tr>
+                            <td colspan="3" class="px-4 py-4 text-sm font-medium text-gray-900 text-right">Shipping</td>
+                            <td class="px-4 py-4 text-sm text-gray-500">${{ "%.2f"|format(shipping) }}</td>
+                        </tr>
+                        <!-- Total Row -->
+                        <tr class="bg-gray-50 font-semibold">
+                            <td colspan="3" class="px-4 py-4 text-sm font-medium text-gray-900 text-right">Total Amount
+                            </td>
+                            <td class="px-4 py-4 text-sm font-medium text-gray-900">${{ "%.2f"|format(total) }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Shipping and Payment Form -->
+            <form id="orderForm" method="POST" action="{{ url_for('confirm_order') }}" class="space-y-6" novalidate>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Payment Method -->
+                    <div>
+                        <label for="payment_method" class="block text-sm font-medium text-gray-700 mb-1">Payment Method
+                            *</label>
+                        <select id="payment_method" name="payment_method" required
+                            class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition bg-white">
+                            <option value="" disabled selected>Select payment method</option>
+                            <option value="COD">Cash on Delivery (COD)</option>
+                            <option value="credit_card">Credit Card</option>
+                            <option value="debit_card">Debit Card</option>
+                            <option value="paypal">PayPal</option>
+                            <option value="bank_transfer">Bank Transfer</option>
+                            <option value="digital_wallet">Digital Wallet</option>
+                        </select>
+                        <p id="payment_method_error" class="mt-1 text-sm text-error hidden">Please select a payment
+                            method</p>
+                    </div>
+
+                    <!-- Shipping Country -->
+                    <div>
+                        <label for="shipping_country" class="block text-sm font-medium text-gray-700 mb-1">Country
+                            *</label>
+                        <input type="text" id="shipping_country" name="shipping_country" required
+                            class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition"
+                            placeholder="United States">
+                        <p id="shipping_country_error" class="mt-1 text-sm text-error hidden">Country is required</p>
+                    </div>
+
+                    <!-- Shipping Address -->
+                    <div class="md:col-span-2">
+                        <label for="shipping_address" class="block text-sm font-medium text-gray-700 mb-1">Shipping
+                            Address *</label>
+                        <textarea id="shipping_address" name="shipping_address" rows="2" required
+                            class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition"
+                            placeholder="123 Main St, Apt 4B"></textarea>
+                        <p id="shipping_address_error" class="mt-1 text-sm text-error hidden">Shipping address is
+                            required</p>
+                    </div>
+
+                    <!-- Shipping City -->
+                    <div>
+                        <label for="shipping_city" class="block text-sm font-medium text-gray-700 mb-1">City *</label>
+                        <input type="text" id="shipping_city" name="shipping_city" required
+                            class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition"
+                            placeholder="New York">
+                        <p id="shipping_city_error" class="mt-1 text-sm text-error hidden">City is required</p>
+                    </div>
+
+                    <!-- Shipping State -->
+                    <div>
+                        <label for="shipping_state"
+                            class="block text-sm font-medium text-gray-700 mb-1">State/Province</label>
+                        <input type="text" id="shipping_state" name="shipping_state"
+                            class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition"
+                            placeholder="NY">
+                    </div>
+
+                    <!-- Extra Notes -->
+                    <div class="md:col-span-2">
+                        <label for="extra_notes" class="block text-sm font-medium text-gray-700 mb-1">Special
+                            Instructions</label>
+                        <textarea id="extra_notes" name="extra_notes" rows="3"
+                            class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition"
+                            placeholder="Any special delivery instructions?"></textarea>
+                    </div>
+                </div>
+
+                <!-- Form Actions -->
+                <div class="flex items-center justify-between pt-6 border-t border-gray-200">
+                    <a href="{{ url_for('cart_page') }}"
+                        class="text-primary-500 hover:text-primary-600 font-medium transition">← Back to cart</a>
+                    <div class="flex items-center space-x-4">
+                        <button type="submit" id="submitBtn"
+                            class="px-6 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition flex items-center">
+                            <span>Confirm Order</span>
+                            <svg id="spinner" class="hidden w-4 h-4 ml-2 animate-spin"
+                                xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                                    stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor"
+                                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                                </path>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Error Message Display -->
+                {% if error %}
+                <div id="formMessage" class="p-4 rounded-lg bg-error-100 text-error-700">
+                    {{ error }}
+                </div>
+                {% endif %}
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const form = document.getElementById('orderForm');
+            const submitBtn = document.getElementById('submitBtn');
+            const spinner = document.getElementById('spinner');
+
+            // Form validation
+            function validateForm() {
+                let isValid = true;
+
+                // Validate payment method
+                const paymentMethod = document.getElementById('payment_method').value;
+                if (!paymentMethod) {
+                    document.getElementById('payment_method_error').classList.remove('hidden');
+                    isValid = false;
+                } else {
+                    document.getElementById('payment_method_error').classList.add('hidden');
+                }
+
+                // Validate shipping address
+                const shippingAddress = document.getElementById('shipping_address').value.trim();
+                if (!shippingAddress) {
+                    document.getElementById('shipping_address_error').classList.remove('hidden');
+                    isValid = false;
+                } else {
+                    document.getElementById('shipping_address_error').classList.add('hidden');
+                }
+
+                // Validate shipping city
+                const shippingCity = document.getElementById('shipping_city').value.trim();
+                if (!shippingCity) {
+                    document.getElementById('shipping_city_error').classList.remove('hidden');
+                    isValid = false;
+                } else {
+                    document.getElementById('shipping_city_error').classList.add('hidden');
+                }
+
+                // Validate shipping country
+                const shippingCountry = document.getElementById('shipping_country').value.trim();
+                if (!shippingCountry) {
+                    document.getElementById('shipping_country_error').classList.remove('hidden');
+                    isValid = false;
+                } else {
+                    document.getElementById('shipping_country_error').classList.add('hidden');
+                }
+
+                return isValid;
+            }
+
+            // Form submission
+            form.addEventListener('submit', function (e) {
+                if (!validateForm()) {
+                    e.preventDefault();
+                    return;
+                }
+
+                // Show loading state
+                submitBtn.disabled = true;
+                spinner.classList.remove('hidden');
+                submitBtn.querySelector('span').textContent = 'Processing...';
+            });
+
+            // Real-time validation
+            document.getElementById('payment_method').addEventListener('change', function () {
+                if (this.value) document.getElementById('payment_method_error').classList.add('hidden');
+            });
+
+            document.getElementById('shipping_address').addEventListener('input', function () {
+                if (this.value.trim()) document.getElementById('shipping_address_error').classList.add('hidden');
+            });
+
+            document.getElementById('shipping_city').addEventListener('input', function () {
+                if (this.value.trim()) document.getElementById('shipping_city_error').classList.add('hidden');
+            });
+
+            document.getElementById('shipping_country').addEventListener('input', function () {
+                if (this.value.trim()) document.getElementById('shipping_country_error').classList.add('hidden');
+            });
+        });
+    </script>
+</body>
+
+</html>

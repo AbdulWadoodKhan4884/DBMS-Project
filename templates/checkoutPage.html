@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            500: '#3B82F6',
+                            600: '#2563EB',
+                        },
+                        success: '#10B981',
+                        error: '#EF4444',
+                    },
+                    transitionProperty: {
+                        'width': 'width',
+                        'opacity': 'opacity',
+                    },
+                }
+            }
+        }
+    </script>
+</head>
+
+<body class="bg-gray-50 min-h-screen">
+    <!-- Header -->
+    <div class="bg-primary-500 py-4 px-6 shadow-md">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <h1 class="text-2xl font-bold text-white">Checkout</h1>
+            <div class="flex space-x-4">
+                <a href="{{ url_for('cart_page') }}" class="text-white hover:text-primary-100 transition">Back to
+                    Cart</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+        {% if order %}
+        <!-- Order Summary -->
+        <div class="bg-white rounded-xl shadow-md overflow-hidden mb-8">
+            <div class="bg-gray-50 px-6 py-4 border-b border-gray-200">
+                <h2 class="text-lg font-semibold text-gray-800">Order Summary</h2>
+            </div>
+            <div class="p-6">
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th scope="col"
+                                    class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Product</th>
+                                <th scope="col"
+                                    class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Category</th>
+                                <th scope="col"
+                                    class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Price</th>
+                                <th scope="col"
+                                    class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Qty</th>
+                                <th scope="col"
+                                    class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Subtotal</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            {% for item in order.items %}
+                            <tr>
+                                <td class="px-4 py-4">
+                                    <div class="flex items-center">
+                                        <div class="flex-shrink-0 h-16 w-16">
+                                            <img src="{{ url_for('static', filename=item.image_path) }}"
+                                                alt="{{ item.name }}" class="h-full w-full object-contain">
+                                        </div>
+                                        <div class="ml-4">
+                                            <div class="text-sm font-medium text-gray-900">{{ item.name }}</div>
+                                            <div class="text-sm text-gray-500 line-clamp-1">{{ item.description }}</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-4 py-4 text-sm text-gray-500">{{ item.category }}</td>
+                                <td class="px-4 py-4 text-sm text-gray-500">${{ "%.2f"|format(item.price) }}</td>
+                                <td class="px-4 py-4 text-sm text-gray-500">{{ item.quantity }}</td>
+                                <td class="px-4 py-4 text-sm font-medium text-gray-900">${{
+                                    "%.2f"|format(item.item_total) }}</td>
+                            </tr>
+                            {% endfor %}
+                            <!-- Shipping Row -->
+                            <tr>
+                                <td colspan="4" class="px-4 py-4 text-sm font-medium text-gray-900 text-right">Shipping
+                                </td>
+                                <td class="px-4 py-4 text-sm text-gray-500">$5.99</td>
+                            </tr>
+                            <!-- Total Row -->
+                            <tr class="bg-gray-50 font-semibold">
+                                <td colspan="4" class="px-4 py-4 text-sm font-medium text-gray-900 text-right">Total
+                                    Amount</td>
+                                <td class="px-4 py-4 text-sm font-medium text-gray-900">${{
+                                    "%.2f"|format(order.total_amount) }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Shipping and Payment Details -->
+        <div class="bg-white rounded-xl shadow-md overflow-hidden">
+            <div class="bg-gray-50 px-6 py-4 border-b border-gray-200">
+                <h2 class="text-lg font-semibold text-gray-800">Shipping & Payment Information</h2>
+            </div>
+            <div class="p-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Shipping Address</label>
+                        <div class="p-4 border rounded-lg bg-gray-50">
+                            <p>{{ order.shipping_address }}, {{ order.shipping_city }}{% if order.shipping_state %}, {{
+                                order.shipping_state }}{% endif %}, {{ order.shipping_country }}</p>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Payment Method</label>
+                        <div class="p-4 border rounded-lg bg-gray-50">
+                            <p>{{ order.payment_method|replace('_', ' ')|title }}</p>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Order Date</label>
+                        <div class="p-4 border rounded-lg bg-gray-50">
+                            <p>{{ order.order_date.strftime('%B %d, %Y %I:%M %p') }}</p>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Order Number</label>
+                        <div class="p-4 border rounded-lg bg-gray-50">
+                            <p>#{{ order.order_id }}</p>
+                        </div>
+                    </div>
+
+                    {% if order.notes %}
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Special Instructions</label>
+                        <div class="p-4 border rounded-lg bg-gray-50">
+                            <p>{{ order.notes }}</p>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-8 text-center">
+            <a href="{{ url_for('product_catalogue') }}"
+                class="inline-block px-6 py-3 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition">
+                Continue Shopping
+            </a>
+        </div>
+        {% else %}
+        <div class="bg-white rounded-xl shadow-md p-12 text-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto text-gray-400 mb-4" fill="none"
+                viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+            <h3 class="text-lg font-medium text-gray-900 mb-2">No Order Found</h3>
+            <p class="text-gray-500 mb-6">We couldn't find any recent order to display.</p>
+            <a href="{{ url_for('product_catalogue') }}"
+                class="px-6 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition inline-block">
+                Continue Shopping
+            </a>
+        </div>
+        {% endif %}
+    </main>
+</body>
+
+</html>

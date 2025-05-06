@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Catalog</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            500: '#3B82F6',
+                            600: '#2563EB',
+                        },
+                        success: '#10B981',
+                        error: '#EF4444',
+                    },
+                    transitionProperty: {
+                        'width': 'width',
+                        'opacity': 'opacity',
+                        'transform': 'transform',
+                    },
+                }
+            }
+        }
+    </script>
+</head>
+
+<body class="bg-gray-50 min-h-screen">
+    <!-- Header -->
+    <div class="bg-primary-500 py-4 px-6 shadow-md">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <h1 class="text-2xl font-bold text-white">Product Catalog</h1>
+            <div class="flex space-x-4">
+                <a href="{{ url_for('cart_page') }}" class="text-white hover:text-primary-100 transition">Cart</a>
+                <a href="{{ url_for('clear_cart') }}" class="text-white hover:text-primary-100 transition">Clear Cart</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+        <!-- Success/Error Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="mb-4 p-4 rounded-lg {% if category == 'success' %}bg-success-100 text-success-800{% else %}bg-error-100 text-error-800{% endif %}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <!-- Product Grid -->
+        <div id="productGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+            {% for product in products %}
+            <div class="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300">
+                <div class="p-4">
+                    <img src="{{ url_for('static', filename=product.image_path) }}" alt="{{ product.name }}"
+                        class="w-full h-40 object-contain mb-4">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-sm text-gray-500 uppercase font-medium">{{ product.category }}</p>
+                            <h3 class="text-lg font-semibold text-gray-800">{{ product.name }}</h3>
+                        </div>
+                        <p class="text-lg font-bold text-primary-500">${{ "%.2f"|format(product.price) }}</p>
+                    </div>
+                    <p class="mt-2 text-gray-600 text-sm line-clamp-2">{{ product.description }}</p>
+                    <div class="mt-2 text-sm text-gray-500">
+                        In Stock: {{ product.in_stock }}
+                    </div>
+                    <form method="POST" action="{{ url_for('product_catalogue') }}" class="mt-4">
+                        <input type="hidden" name="product_id" value="{{ product.id }}">
+                        <div class="flex items-center space-x-2">
+                            <input type="number" 
+                                   name="quantity" 
+                                   min="1" 
+                                   value="1" 
+                                   max="{{ product.in_stock }}"
+                                   class="w-20 px-3 py-1 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition"
+                                   required>
+                            <button type="submit"
+                                    class="px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition">
+                                Add to Cart
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </main>
+
+    <!-- Debugging Script (optional) -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const forms = document.querySelectorAll('form');
+            
+            forms.forEach(form => {
+                form.addEventListener('submit', function(e) {
+                    const quantityInput = this.querySelector('input[name="quantity"]');
+                    console.log('Submitting form with quantity:', quantityInput.value);
+                });
+            });
+        });
+    </script>
+</body>
+
+</html>

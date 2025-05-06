@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            500: '#3B82F6',
+                            600: '#2563EB',
+                        },
+                        success: '#10B981',
+                        warning: '#F59E0B',
+                        error: '#EF4444',
+                        info: '#06B6D4',
+                    },
+                    transitionProperty: {
+                        'width': 'width',
+                        'opacity': 'opacity',
+                        'transform': 'transform',
+                    },
+                }
+            }
+        }
+    </script>
+</head>
+
+<body class="bg-gray-50 min-h-screen">
+    <!-- Header -->
+    <div class="bg-primary-500 py-4 px-6 shadow-md">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <h1 class="text-2xl font-bold text-white">Admin Dashboard</h1>
+            <div class="flex space-x-4">
+                <button class="text-white hover:text-primary-100 transition">Refresh Data</button>
+                <button class="text-white hover:text-primary-100 transition">Export Data</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 space-y-8">
+        <!-- Metrics Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <!-- Total Sales -->
+            <div class="bg-white rounded-xl shadow-md p-6 border-l-4 border-primary-500">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-sm font-medium text-gray-500">Total Sales</p>
+                        <p class="text-2xl font-bold text-gray-900">$1,248.75</p>
+                    </div>
+                    <div class="p-2 rounded-lg bg-primary-100 text-primary-500">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                </div>
+                <p class="mt-2 text-sm text-gray-500"><span class="text-success">↑ 12.5%</span> from last month</p>
+            </div>
+
+            <!-- Items Sold -->
+            <div class="bg-white rounded-xl shadow-md p-6 border-l-4 border-success">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-sm font-medium text-gray-500">Items Sold</p>
+                        <p class="text-2xl font-bold text-gray-900">248</p>
+                    </div>
+                    <div class="p-2 rounded-lg bg-success-100 text-success">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                </div>
+                <p class="mt-2 text-sm text-gray-500"><span class="text-success">↑ 8.2%</span> from last month</p>
+            </div>
+
+            <!-- Items in Carts -->
+            <div class="bg-white rounded-xl shadow-md p-6 border-l-4 border-warning">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-sm font-medium text-gray-500">Items in Carts</p>
+                        <p class="text-2xl font-bold text-gray-900">42</p>
+                    </div>
+                    <div class="p-2 rounded-lg bg-warning-100 text-warning">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                        </svg>
+                    </div>
+                </div>
+                <p class="mt-2 text-sm text-gray-500"><span class="text-success">↑ 5.3%</span> from last week</p>
+            </div>
+
+            <!-- Delivered Orders -->
+            <div class="bg-white rounded-xl shadow-md p-6 border-l-4 border-info">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-sm font-medium text-gray-500">Delivered Orders</p>
+                        <p class="text-2xl font-bold text-gray-900">87</p>
+                    </div>
+                    <div class="p-2 rounded-lg bg-info-100 text-info">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0" />
+                        </svg>
+                    </div>
+                </div>
+                <p class="mt-2 text-sm text-gray-500"><span class="text-error">↓ 2.1%</span> from last month</p>
+            </div>
+        </div>
+
+        <!-- Charts Section -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Sales by Category -->
+            <div class="bg-white rounded-xl shadow-md p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-lg font-semibold text-gray-800">Sales by Category</h2>
+                    <select
+                        class="text-sm border rounded-lg px-3 py-1 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition">
+                        <option>Last 7 Days</option>
+                        <option>Last 30 Days</option>
+                        <option selected>Last 90 Days</option>
+                    </select>
+                </div>
+                <div class="h-64">
+                    <canvas id="salesChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Delivery Status -->
+            <div class="bg-white rounded-xl shadow-md p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-lg font-semibold text-gray-800">Delivery Status</h2>
+                    <select
+                        class="text-sm border rounded-lg px-3 py-1 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition">
+                        <option selected>All Time</option>
+                        <option>Last 30 Days</option>
+                        <option>Last 7 Days</option>
+                    </select>
+                </div>
+                <div class="h-64">
+                    <canvas id="deliveryChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Items Sold Table -->
+        <div class="bg-white rounded-xl shadow-md overflow-hidden">
+            <div class="bg-gray-50 px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+                <h2 class="text-lg font-semibold text-gray-800">Items Sold</h2>
+                <div class="flex space-x-2">
+                    <select id="categoryFilter"
+                        class="text-sm border rounded-lg px-3 py-1 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition">
+                        <option value="all">All Categories</option>
+                        <option value="Vinyl">Vinyl</option>
+                        <option value="Matte">Matte</option>
+                        <option value="Glossy">Glossy</option>
+                        <option value="Holographic">Holographic</option>
+                    </select>
+                    <select id="sortSold"
+                        class="text-sm border rounded-lg px-3 py-1 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition">
+                        <option value="quantity-desc">Sort by: Most Sold</option>
+                        <option value="quantity-asc">Sort by: Least Sold</option>
+                        <option value="revenue-desc">Sort by: Highest Revenue</option>
+                        <option value="revenue-asc">Sort by: Lowest Revenue</option>
+                    </select>
+                </div>
+            </div>
+            <div class="p-6">
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th scope="col"
+                                    class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Product</th>
+                                <th scope="col"
+                                    class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Category</th>
+                                <th scope="col"
+                                    class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Quantity Sold</th>
+                                <th scope="col"
+                                    class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Total Revenue</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            <tr>
+                                <td class="px-4 py-4">
+                                    <div class="flex items-center">
+                                        <div class="flex-shrink-0 h-10 w-10">
+                                            <img src="defaultProd.png" alt="Product"
+                                                class="h-full w-full object-contain">
+                                        </div>
+                                        <div class="ml-4">
+                                            <div class="text-sm font-medium text-gray-900">Vinyl Sticker Pack</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-4 py-4 text-sm text-gray-500">Vinyl</td>
+                                <td class="px-4 py-4 text-sm text-gray-500">84</td>
+                                <td class="px-4 py-4 text-sm font-medium text-gray-900">$1,091.16</td>
+                            </tr>
+                            <tr>
+                                <td class="px-4 py-4">
+                                    <div class="flex items-center">
+                                        <div class="flex-shrink-0 h-10 w-10">
+                                            <img src="defaultProd.png" alt="Product"
+                                                class="h-full w-full object-contain">
+                                        </div>
+                                        <div class="ml-4">
+                                            <div class="text-sm font-medium text-gray-900">Holographic Sticker</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-4 py-4 text-sm text-gray-500">Holographic</td>
+                                <td class="px-4 py-4 text-sm text-gray-500">72</td>
+                                <td class="px-4 py-4 text-sm font-medium text-gray-900">$1,079.28</td>
+                            </tr>
+                            <tr>
+                                <td class="px-4 py-4">
+                                    <div class="flex items-center">
+                                        <div class="flex-shrink-0 h-10 w-10">
+                                            <img src="defaultProd.png" alt="Product"
+                                                class="h-full w-full object-contain">
+                                        </div>
+                                        <div class="ml-4">
+                                            <div class="text-sm font-medium text-gray-900">Matte Finish Sticker</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-4 py-4 text-sm text-gray-500">Matte</td>
+                                <td class="px-4 py-4 text-sm text-gray-500">56</td>
+                                <td class="px-4 py-4 text-sm font-medium text-gray-900">$503.44</td>
+                            </tr>
+                            <tr>
+                                <td class="px-4 py-4">
+                                    <div class="flex items-center">
+                                        <div class="flex-shrink-0 h-10 w-10">
+                                            <img src="defaultProd.png" alt="Product"
+                                                class="h-full w-full object-contain">
+                                        </div>
+                                        <div class="ml-4">
+                                            <div class="text-sm font-medium text-gray-900">Glossy Premium Sticker</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-4 py-4 text-sm text-gray-500">Glossy</td>
+                                <td class="px-4 py-4 text-sm text-gray-500">36</td>
+                                <td class="px-4 py-4 text-sm font-medium text-gray-900">$395.64</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="flex justify-between items-center mt-4">
+                    <div class="text-sm text-gray-500">Showing <span class="font-medium">1</span> to <span
+                            class="font-medium">4</span> of <span class="font-medium">4</span> results</div>
+                    <div class="flex space-x-2">
+                        <button
+                            class="px-3 py-1 border rounded-lg text-gray-700 hover:bg-gray-100 transition disabled:opacity-50"
+                            disabled>
+                            Previous
+                        </button>
+                        <button class="px-3 py-1 border rounded-lg text-gray-700 hover:bg-gray-100 transition">
+                            Next
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Delivered Orders Table -->
+        <div class="bg-white rounded-xl shadow-md overflow-hidden mt-8">
+            <div class="bg-gray-50 px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+                <h2 class="text-lg font-semibold text-gray-800">Delivered Orders</h2>
+                <div class="flex space-x-2">
+                    <select id="statusFilter"
+                        class="text-sm border rounded-lg px-3 py-1 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition">
+                        <option value="all">All Statuses</option>
+                        <option value="Delivered">Delivered</option>
+                        <option value="In Transit">In Transit</option>
+                        <option value="Processing">Processing</option>
+                    </select>
+                    <input type="text" placeholder="Search orders..."
+                        class="text-sm border rounded-lg px-3 py-1 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition w-48">
+                </div>
+            </div>
+            <div class="p-6">
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th scope="col"
+                                    class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Order ID</th>
+                                <th scope="col"
+                                    class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Product</th>
+                                <th scope="col"
+                                    class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Quantity</th>
+                                <th scope="col"
+                                    class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Shipping Address</th>
+                                <th scope="col"
+                                    class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Status</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            <tr>
+                                <td class="px-4 py-4 text-sm font-medium text-gray-900">#ORD-1289</td>
+                                <td class="px-4 py-4 text-sm text-gray-500">Vinyl Sticker Pack</td>
+                                <td class="px-4 py-4 text-sm text-gray-500">2</td>
+                                <td class="px-4 py-4 text-sm text-gray-500">123 Main St, New York, US</td>
+                                <td class="px-4 py-4">
+                                    <span
+                                        class="px-2 py-1 text-xs rounded-full bg-success-100 text-success">Delivered</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="px-4 py-4 text-sm font-medium text-gray-900">#ORD-1287</td>
+                                <td class="px-4 py-4 text-sm text-gray-500">Holographic Sticker</td>
+                                <td class="px-4 py-4 text-sm text-gray-500">1</td>
+                                <td class="px-4 py-4 text-sm text-gray-500">456 Oak Ave, Boston, US</td>
+                                <td class="px-4 py-4">
+                                    <span
+                                        class="px-2 py-1 text-xs rounded-full bg-success-100 text-success">Delivered</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="px-4 py-4 text-sm font-medium text-gray-900">#ORD-1285</td>
+                                <td class="px-4 py-4 text-sm text-gray-500">Matte Finish Sticker</td>
+                                <td class="px-4 py-4 text-sm text-gray-500">3</td>
+                                <td class="px-4 py-4 text-sm text-gray-500">789 Pine Rd, Chicago, US</td>
+                                <td class="px-4 py-4">
+                                    <span class="px-2 py-1 text-xs rounded-full bg-warning-100 text-warning">In
+                                        Transit</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="flex justify-between items-center mt-4">
+                    <div class="text-sm text-gray-500">Showing <span class="font-medium">1</span> to <span
+                            class="font-medium">3</span> of <span class="font-medium">3</span> results</div>
+                    <div class="flex space-x-2">
+                        <button
+                            class="px-3 py-1 border rounded-lg text-gray-700 hover:bg-gray-100 transition disabled:opacity-50"
+                            disabled>
+                            Previous
+                        </button>
+                        <button class="px-3 py-1 border rounded-lg text-gray-700 hover:bg-gray-100 transition">
+                            Next
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Items in Carts Table -->
+        <div class="bg-white rounded-xl shadow-md overflow-hidden mt-8">
+            <div class="bg-gray-50 px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+                <h2 class="text-lg font-semibold text-gray-800">Items in Carts</h2>
+                <div class="flex space-x-2">
+                    <select id="cartCategoryFilter"
+                        class="text-sm border rounded-lg px-3 py-1 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition">
+                        <option value="all">All Categories</option>
+                        <option value="Vinyl">Vinyl</option>
+                        <option value="Matte">Matte</option>
+                        <option value="Glossy">Glossy</option>
+                        <option value="Holographic">Holographic</option>
+                    </select>
+                    <input type="text" placeholder="Search products..."
+                        class="text-sm border rounded-lg px-3 py-1 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition w-48">
+                </div>
+            </div>
+            <div class="p-6">
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th scope="col"
+                                    class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Product</th>
+                                <th scope="col"
+                                    class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Category</th>
+                                <th scope="col"
+                                    class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Quantity</th>
+                                <th scope="col"
+                                    class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Cart Owner</th>
+                                <th scope="col"
+                                    class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Added On</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            <tr>
+                                <td class="px-4 py-4">
+                                    <div class="flex items-center">
+                                        <div class="flex-shrink-0 h-10 w-10">
+                                            <img src="defaultProd.png" alt="Product"
+                                                class="h-full w-full object-contain">
+                                        </div>
+                                        <div class="ml-4">
+                                            <div class="text-sm font-medium text-gray-900">Glossy Premium Sticker</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-4 py-4 text-sm text-gray-500">Glossy</td>
+                                <td class="px-4 py-4 text-sm text-gray-500">2</td>
+                                <td class="px-4 py-4 text-sm text-gray-500">user1@example.com</td>
+                                <td class="px-4 py-4 text-sm text-gray-500">2023-06-15</td>
+                            </tr>
+                            <tr>
+                                <td class="px-4 py-4">
+                                    <div class="flex items-center">
+                                        <div class="flex-shrink-0 h-10 w-10">
+                                            <img src="defaultProd.png" alt="Product"
+                                                class="h-full w-full object-contain">
+                                        </div>
+                                        <div class="ml-4">
+                                            <div class="text-sm font-medium text-gray-900">Vinyl Sticker Pack</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-4 py-4 text-sm text-gray-500">Vinyl</td>
+                                <td class="px-4 py-4 text-sm text-gray-500">1</td>
+                                <td class="px-4 py-4 text-sm text-gray-500">user2@example.com</td>
+                                <td class="px-4 py-4 text-sm text-gray-500">2023-06-14</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="flex justify-between items-center mt-4">
+                    <div class="text-sm text-gray-500">Showing <span class="font-medium">1</span> to <span
+                            class="font-medium">2</span> of <span class="font-medium">2</span> results</div>
+                    <div class="flex space-x-2">
+                        <button
+                            class="px-3 py-1 border rounded-lg text-gray-700 hover:bg-gray-100 transition disabled:opacity-50"
+                            disabled>
+                            Previous
+                        </button>
+                        <button class="px-3 py-1 border rounded-lg text-gray-700 hover:bg-gray-100 transition">
+                            Next
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Sales by Category Chart
+            const salesCtx = document.getElementById('salesChart').getContext('2d');
+            const salesChart = new Chart(salesCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Vinyl', 'Holographic', 'Matte', 'Glossy'],
+                    datasets: [{
+                        label: 'Sales Revenue',
+                        data: [1091.16, 1079.28, 503.44, 395.64],
+                        backgroundColor: [
+                            'rgba(59, 130, 246, 0.7)',
+                            'rgba(16, 185, 129, 0.7)',
+                            'rgba(245, 158, 11, 0.7)',
+                            'rgba(6, 182, 212, 0.7)'
+                        ],
+                        borderColor: [
+                            'rgba(59, 130, 246, 1)',
+                            'rgba(16, 185, 129, 1)',
+                            'rgba(245, 158, 11, 1)',
+                            'rgba(6, 182, 212, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+
+            // Delivery Status Chart
+            const deliveryCtx = document.getElementById('deliveryChart').getContext('2d');
+            const deliveryChart = new Chart(deliveryCtx, {
+                type: 'pie',
+                data: {
+                    labels: ['Delivered', 'In Transit', 'Processing'],
+                    datasets: [{
+                        data: [65, 15, 20],
+                        backgroundColor: [
+                            'rgba(16, 185, 129, 0.7)',
+                            'rgba(245, 158, 11, 0.7)',
+                            'rgba(239, 68, 68, 0.7)'
+                        ],
+                        borderColor: [
+                            'rgba(16, 185, 129, 1)',
+                            'rgba(245, 158, 11, 1)',
+                            'rgba(239, 68, 68, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                        }
+                    }
+                }
+            });
+
+            // In a real implementation, you would add event listeners for:
+            // - Filtering tables by category/status
+            // - Sorting tables by columns
+            // - Pagination controls
+            // - Search functionality
+            // - Refresh data button
+            // - Export data button
+        });
+    </script>
+</body>
+
+</html>
